@@ -5,17 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDateTime;
 
-/**
- * Modelo de Mensaje para el cliente
- * Representa un mensaje en el sistema
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
     
-    private int id;
-    private int senderId;
-    private int receiverId;
-    private String messageType; // TEXT, FILE
+    private Long id;
+    private Long senderId;
+    private Long receiverId;
+    private String messageType;
     private String content;
     private String fileName;
     private String filePath;
@@ -26,14 +22,12 @@ public class Message {
     
     private boolean isRead;
     
-    // Campos adicionales para la interfaz
     private String senderUsername;
     private String receiverUsername;
     
-    // Constructores
     public Message() {}
     
-    public Message(int senderId, int receiverId, String messageType, String content) {
+    public Message(Long senderId, Long receiverId, String messageType, String content) {
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.messageType = messageType;
@@ -43,27 +37,27 @@ public class Message {
     }
     
     // Getters y Setters
-    public int getId() {
+    public Long getId() {
         return id;
     }
     
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
     
-    public int getSenderId() {
+    public Long getSenderId() {
         return senderId;
     }
     
-    public void setSenderId(int senderId) {
+    public void setSenderId(Long senderId) {
         this.senderId = senderId;
     }
     
-    public int getReceiverId() {
+    public Long getReceiverId() {
         return receiverId;
     }
     
-    public void setReceiverId(int receiverId) {
+    public void setReceiverId(Long receiverId) {
         this.receiverId = receiverId;
     }
     
@@ -113,6 +107,14 @@ public class Message {
     
     public void setSentAt(LocalDateTime sentAt) {
         this.sentAt = sentAt;
+    }
+    
+    public LocalDateTime getCreatedAt() {
+        return sentAt; // Alias para compatibilidad
+    }
+    
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.sentAt = createdAt;
     }
     
     public boolean isRead() {

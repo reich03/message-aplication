@@ -3,7 +3,6 @@ package com.messaging.client.controller;
 import com.messaging.client.model.Message;
 import com.messaging.client.model.User;
 import com.messaging.client.service.NetworkService;
-import com.messaging.client.service.UserService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,31 +20,21 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Controlador principal de la aplicación
- * Implementa patrón MVC y maneja la interfaz master-detail
- */
 public class MainController implements Initializable {
     
     private static final Logger logger = LoggerFactory.getLogger(MainController.class);
     
-    // Servicios
     private final NetworkService networkService;
-    private final UserService userService;
     private final ScheduledExecutorService scheduler;
     
-    // Referencias a la ventana
     private Stage primaryStage;
     
-    // Componentes de autenticación
     @FXML private VBox loginPane;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
@@ -87,7 +76,6 @@ public class MainController implements Initializable {
     
     public MainController() {
         this.networkService = NetworkService.getInstance();
-        this.userService = new UserService();
         this.scheduler = Executors.newScheduledThreadPool(2);
         this.connectedUsers = FXCollections.observableArrayList();
         this.messages = FXCollections.observableArrayList();
@@ -101,13 +89,11 @@ public class MainController implements Initializable {
     }
     
     private void setupUI() {
-        // Configurar tabla de usuarios
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         lastSeenColumn.setCellValueFactory(new PropertyValueFactory<>("lastConnection"));
         usersTable.setItems(connectedUsers);
         
-        // Configurar tabla de mensajes (master-detail)
         senderColumn.setCellValueFactory(new PropertyValueFactory<>("senderUsername"));
         receiverColumn.setCellValueFactory(new PropertyValueFactory<>("receiverUsername"));
         contentColumn.setCellValueFactory(new PropertyValueFactory<>("content"));
@@ -345,7 +331,7 @@ public class MainController implements Initializable {
         new Thread(loadMessagesTask).start();
     }
     
-    private void loadMessagesWithUser(int userId) {
+    private void loadMessagesWithUser(Long userId) {
         Task<List<Message>> loadMessagesTask = new Task<List<Message>>() {
             @Override
             protected List<Message> call() throws Exception {
@@ -448,7 +434,7 @@ public class MainController implements Initializable {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Configuración");
         alert.setHeaderText("Configuración del Cliente");
-        alert.setContentText("Configuración del servidor:\nHost: localhost\nPuerto: 9998");
+        alert.setContentText("Configuración del servidor:\nHost: localhost\nPuerto: 9999");
         alert.showAndWait();
     }
     
