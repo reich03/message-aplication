@@ -1,0 +1,262 @@
+/* Estilos para la aplicación de mensajería */
+
+/* Variables CSS */
+.root {
+    -fx-primary-color: #2196F3;
+    -fx-secondary-color: #FFC107;
+    -fx-success-color: #4CAF50;
+    -fx-error-color: #F44336;
+    -fx-warning-color: #FF9800;
+    -fx-background-color: #F5F5F5;
+    -fx-text-color: #212121;
+    -fx-border-color: #E0E0E0;
+}
+
+/* Panel de Login */
+.login-pane {
+    -fx-background-color: linear-gradient(to bottom, #2196F3, #1976D2);
+    -fx-padding: 40px;
+    -fx-alignment: center;
+}
+
+.app-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 2);
+}
+
+/* Campos de entrada */
+.text-field, .password-field {
+    -fx-background-color: white;
+    -fx-border-color: #BDBDBD;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 2px;
+}
+
+/* Botones */
+.button {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px 20px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #1976D2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.button:pressed {
+    -fx-background-color: #0D47A1;
+}
+
+/* Botón secundario */
+.register-button {
+    -fx-background-color: transparent;
+    -fx-border-color: white;
+    -fx-border-width: 2px;
+    -fx-text-fill: white;
+}
+
+.register-button:hover {
+    -fx-background-color: rgba(255,255,255,0.1);
+}
+
+/* Etiquetas de estado */
+.status-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+    -fx-padding: 5px;
+}
+
+/* Barra superior */
+.top-bar {
+    -fx-background-color: white;
+    -fx-border-color: -fx-border-color;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 10px;
+}
+
+.welcome-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.connection-status {
+    -fx-font-size: 12px;
+    -fx-text-fill: -fx-success-color;
+    -fx-font-weight: bold;
+}
+
+/* Títulos de sección */
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+    -fx-padding: 5px;
+}
+
+/* Tablas */
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.table-view .column-header {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10px;
+}
+
+.table-view .table-cell {
+    -fx-padding: 8px;
+    -fx-border-color: transparent;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: rgba(33, 150, 243, 0.1);
+}
+
+/* Lista de mensajes */
+.messages-list {
+    -fx-background-color: white;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+}
+
+.messages-list .list-cell {
+    -fx-padding: 5px;
+    -fx-border-color: transparent;
+}
+
+.messages-list .list-cell:hover {
+    -fx-background-color: rgba(33, 150, 243, 0.1);
+}
+
+/* Área de texto */
+.text-area {
+    -fx-background-color: white;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+    -fx-font-size: 14px;
+}
+
+.text-area:focused {
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 2px;
+}
+
+/* Etiqueta de usuario seleccionado */
+.selected-user-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+    -fx-padding: 5px;
+    -fx-background-color: rgba(33, 150, 243, 0.1);
+    -fx-background-radius: 5px;
+}
+
+/* Barra de estado */
+.status-bar {
+    -fx-background-color: #E0E0E0;
+    -fx-border-color: -fx-border-color;
+    -fx-border-width: 1px 0 0 0;
+    -fx-padding: 5px 10px;
+    -fx-font-size: 12px;
+}
+
+/* Menú */
+.menu-bar {
+    -fx-background-color: white;
+    -fx-border-color: -fx-border-color;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.menu {
+    -fx-padding: 5px 10px;
+}
+
+.menu:hover {
+    -fx-background-color: rgba(33, 150, 243, 0.1);
+}
+
+.menu-item {
+    -fx-padding: 5px 20px;
+}
+
+.menu-item:hover {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+}
+
+/* SplitPane */
+.split-pane {
+    -fx-background-color: transparent;
+}
+
+.split-pane-divider {
+    -fx-background-color: -fx-border-color;
+    -fx-border-color: -fx-border-color;
+}
+
+/* Efectos y animaciones */
+.button, .text-field, .password-field, .text-area {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+/* Scrollbars personalizados */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: #F0F0F0;
+    -fx-border-color: transparent;
+    -fx-background-radius: 5px;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: -fx-primary-color;
+    -fx-background-radius: 5px;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #1976D2;
+}
+
+/* Responsive design */
+@media (max-width: 800px) {
+    .app-title {
+        -fx-font-size: 24px;
+    }
+    
+    .text-field, .password-field {
+        -fx-max-width: 250px;
+    }
+}

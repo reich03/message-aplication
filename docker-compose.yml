@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: messaging_db
+    environment:
+      POSTGRES_DB: messaging_app
+      POSTGRES_USER: messaging_user
+      POSTGRES_PASSWORD: messaging_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - messaging_network
+
+  web-app:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
+    container_name: messaging_web
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/messaging_app
+      - SPRING_DATASOURCE_USERNAME=messaging_user
+      - SPRING_DATASOURCE_PASSWORD=messaging_pass
+    networks:
+      - messaging_network
+
+  server-app:
+    build:
+      context: ./server-app
+      dockerfile: Dockerfile
+    container_name: messaging_server
+    ports:
+      - "9999:9999"
+    depends_on:
+      - postgres
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/messaging_app
+      - DB_USER=messaging_user
+      - DB_PASSWORD=messaging_pass
+    volumes:
+      - ./server-app/logs:/app/logs
+    networks:
+      - messaging_network
+
+volumes:
+  postgres_data:
+
+networks:
+  messaging_network:
+    driver: bridge
