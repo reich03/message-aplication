@@ -167,4 +167,101 @@ public class WebController {
     public List<Map<String, Object>> getAllUsersAPI() {
         return webService.getAllUsersAPI();
     }
+    
+    /**
+     * Crear nuevo usuario
+     */
+    @GetMapping("/users/new")
+    public String newUserForm(Model model) {
+        model.addAttribute("user", new User());
+        return "user-form";
+    }
+    
+    /**
+     * Guardar nuevo usuario
+     */
+    @PostMapping("/users")
+    public String saveUser(@ModelAttribute User user) {
+        webService.createUser(user);
+        return "redirect:/users?created=true";
+    }
+    
+    /**
+     * Editar usuario
+     */
+    @GetMapping("/users/{id}/edit")
+    public String editUserForm(@PathVariable Long id, Model model) {
+        User user = webService.getUserById(id);
+        if (user == null) {
+            return "redirect:/users?error=notfound";
+        }
+        model.addAttribute("user", user);
+        return "user-form";
+    }
+    
+    /**
+     * Actualizar usuario
+     */
+    @PostMapping("/users/{id}")
+    public String updateUser(@PathVariable Long id, @ModelAttribute User user) {
+        webService.updateUser(id, user);
+        return "redirect:/users?updated=true";
+    }
+    
+    /**
+     * Eliminar usuario
+     */
+    @PostMapping("/users/{id}/delete")
+    public String deleteUser(@PathVariable Long id) {
+        webService.deleteUser(id);
+        return "redirect:/users?deleted=true";
+    }
+    
+    /**
+     * Ver detalles de usuario
+     */
+    @GetMapping("/users/{id}")
+    public String userDetails(@PathVariable Long id, Model model) {
+        User user = webService.getUserById(id);
+        if (user == null) {
+            return "redirect:/users?error=notfound";
+        }
+        
+        // Obtener información completa del usuario
+        Map<String, Object> userInfo = webService.getUserCompleteInfo(id);
+        model.addAttribute("user", user);
+        model.addAttribute("userInfo", userInfo);
+        
+        return "user-details";
+    }
+    
+    /**
+     * Gestión rápida de usuarios
+     */
+    @GetMapping("/admin/users")
+    public String manageUsers(Model model) {
+        List<User> users = webService.getAllUsers();
+        model.addAttribute("users", users);
+        return "admin/users";
+    }
+    
+    /**
+     * Gestión rápida de mensajes
+     */
+    @GetMapping("/admin/messages")
+    public String manageMessages(Model model) {
+        List<Message> messages = webService.getMessages(0, 50, null);
+        model.addAttribute("messages", messages);
+        return "admin/messages";
+    }
+    
+    /**
+     * Gestión rápida de reportes
+     */
+    @GetMapping("/admin/reports")
+    public String manageReports(Model model) {
+        Map<String, Object> stats = webService.getDashboardStats();
+        model.addAttribute("stats", stats);
+        return "admin/reports";
+    }
 }

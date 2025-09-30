@@ -3,8 +3,10 @@ package com.messaging.web.repository;
 import com.messaging.web.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -32,7 +34,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Contar usuarios conectados
      */
-    long countByIsConnectedTrue();
+    long countByConnectedTrue();
     
     /**
      * Buscar usuarios por estado
@@ -42,7 +44,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Buscar usuarios conectados
      */
-    List<User> findByIsConnectedTrue();
+    List<User> findByConnectedTrue();
     
     /**
      * Buscar usuarios recientes
@@ -79,6 +81,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Buscar usuarios activos (conectados recientemente)
      */
-    @Query("SELECT u FROM User u WHERE u.lastConnection IS NOT NULL AND u.lastConnection > CURRENT_TIMESTAMP - INTERVAL '24 HOURS' ORDER BY u.lastConnection DESC")
-    List<User> findActiveUsers();
+    @Query("SELECT u FROM User u WHERE u.lastConnection IS NOT NULL AND u.lastConnection > :oneDayAgo ORDER BY u.lastConnection DESC")
+    List<User> findActiveUsers(@Param("oneDayAgo") LocalDateTime oneDayAgo);
 }

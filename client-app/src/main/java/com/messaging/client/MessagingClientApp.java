@@ -70,9 +70,6 @@ public class MessagingClientApp extends Application {
     }
     
     public static void main(String[] args) {
-        // Configurar propiedades del sistema para JavaFX
-        System.setProperty("javafx.preloader", "com.messaging.client.SplashScreen");
-        
         launch(args);
     }
 }

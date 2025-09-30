@@ -1,0 +1,10 @@
+com\messaging\web\repository\MessageRepository.class
+com\messaging\web\model\User.class
+com\messaging\web\repository\ConnectionRepository.class
+com\messaging\web\MessagingWebApplication.class
+com\messaging\web\service\WebService.class
+com\messaging\web\model\Message.class
+com\messaging\web\model\Message$MessageType.class
+com\messaging\web\controller\WebController.class
+com\messaging\web\model\User$UserStatus.class
+com\messaging\web\repository\UserRepository.class

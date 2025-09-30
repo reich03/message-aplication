@@ -32,7 +32,7 @@ public class NetworkService {
     
     private NetworkService() {
         this.serverHost = "localhost"; // En producción sería configurable
-        this.serverPort = 9999;
+        this.serverPort = 9998; // Puerto externo del servidor
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
         this.connected = new AtomicBoolean(false);

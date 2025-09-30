@@ -1,17 +1,5 @@
 /* Estilos para la aplicación de mensajería */
 
-/* Variables CSS */
-.root {
-    -fx-primary-color: #2196F3;
-    -fx-secondary-color: #FFC107;
-    -fx-success-color: #4CAF50;
-    -fx-error-color: #F44336;
-    -fx-warning-color: #FF9800;
-    -fx-background-color: #F5F5F5;
-    -fx-text-color: #212121;
-    -fx-border-color: #E0E0E0;
-}
-
 /* Panel de Login */
 .login-pane {
     -fx-background-color: linear-gradient(to bottom, #2196F3, #1976D2);
@@ -37,13 +25,13 @@
 }
 
 .text-field:focused, .password-field:focused {
-    -fx-border-color: -fx-primary-color;
+    -fx-border-color: #2196F3;
     -fx-border-width: 2px;
 }
 
 /* Botones */
 .button {
-    -fx-background-color: -fx-primary-color;
+    -fx-background-color: #2196F3;
     -fx-text-fill: white;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
@@ -84,7 +72,7 @@
 /* Barra superior */
 .top-bar {
     -fx-background-color: white;
-    -fx-border-color: -fx-border-color;
+    -fx-border-color: #E0E0E0;
     -fx-border-width: 0 0 1px 0;
     -fx-padding: 10px;
 }
@@ -92,12 +80,12 @@
 .welcome-label {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-text-fill: -fx-primary-color;
+    -fx-text-fill: #2196F3;
 }
 
 .connection-status {
     -fx-font-size: 12px;
-    -fx-text-fill: -fx-success-color;
+    -fx-text-fill: #4CAF50;
     -fx-font-weight: bold;
 }
 
@@ -105,20 +93,20 @@
 .section-title {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-text-fill: -fx-primary-color;
+    -fx-text-fill: #2196F3;
     -fx-padding: 5px;
 }
 
 /* Tablas */
 .table-view {
     -fx-background-color: white;
-    -fx-border-color: -fx-border-color;
+    -fx-border-color: #E0E0E0;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
 }
 
 .table-view .column-header {
-    -fx-background-color: -fx-primary-color;
+    -fx-background-color: #2196F3;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-padding: 10px;
@@ -130,7 +118,7 @@
 }
 
 .table-row-cell:selected {
-    -fx-background-color: -fx-primary-color;
+    -fx-background-color: #2196F3;
     -fx-text-fill: white;
 }
 
@@ -141,7 +129,7 @@
 /* Lista de mensajes */
 .messages-list {
     -fx-background-color: white;
-    -fx-border-color: -fx-border-color;
+    -fx-border-color: #E0E0E0;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
     -fx-padding: 10px;
@@ -159,7 +147,7 @@
 /* Área de texto */
 .text-area {
     -fx-background-color: white;
-    -fx-border-color: -fx-border-color;
+    -fx-border-color: #E0E0E0;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
     -fx-padding: 10px;
@@ -167,7 +155,7 @@
 }
 
 .text-area:focused {
-    -fx-border-color: -fx-primary-color;
+    -fx-border-color: #2196F3;
     -fx-border-width: 2px;
 }
 
@@ -175,7 +163,7 @@
 .selected-user-label {
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-text-fill: -fx-primary-color;
+    -fx-text-fill: #2196F3;
     -fx-padding: 5px;
     -fx-background-color: rgba(33, 150, 243, 0.1);
     -fx-background-radius: 5px;
@@ -184,7 +172,7 @@
 /* Barra de estado */
 .status-bar {
     -fx-background-color: #E0E0E0;
-    -fx-border-color: -fx-border-color;
+    -fx-border-color: #E0E0E0;
     -fx-border-width: 1px 0 0 0;
     -fx-padding: 5px 10px;
     -fx-font-size: 12px;
@@ -193,7 +181,7 @@
 /* Menú */
 .menu-bar {
     -fx-background-color: white;
-    -fx-border-color: -fx-border-color;
+    -fx-border-color: #E0E0E0;
     -fx-border-width: 0 0 1px 0;
 }
 
@@ -210,7 +198,7 @@
 }
 
 .menu-item:hover {
-    -fx-background-color: -fx-primary-color;
+    -fx-background-color: #2196F3;
     -fx-text-fill: white;
 }
 
@@ -220,8 +208,8 @@
 }
 
 .split-pane-divider {
-    -fx-background-color: -fx-border-color;
-    -fx-border-color: -fx-border-color;
+    -fx-background-color: #E0E0E0;
+    -fx-border-color: #E0E0E0;
 }
 
 /* Efectos y animaciones */
@@ -242,7 +230,7 @@
 }
 
 .scroll-bar:vertical .thumb {
-    -fx-background-color: -fx-primary-color;
+    -fx-background-color: #2196F3;
     -fx-background-radius: 5px;
 }
 

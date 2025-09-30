@@ -156,7 +156,8 @@ public class MainController implements Initializable {
         });
     }
     
-    private void handleLogin() {
+    @FXML
+    public void handleLogin() {
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
         
@@ -192,7 +193,8 @@ public class MainController implements Initializable {
         new Thread(loginTask).start();
     }
     
-    private void handleRegister() {
+    @FXML
+    public void handleRegister() {
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
         
@@ -225,7 +227,8 @@ public class MainController implements Initializable {
         new Thread(registerTask).start();
     }
     
-    private void handleSendMessage() {
+    @FXML
+    public void handleSendMessage() {
         if (selectedUser == null) {
             showStatus("Seleccione un usuario para enviar el mensaje", false);
             return;
@@ -261,7 +264,8 @@ public class MainController implements Initializable {
         new Thread(sendTask).start();
     }
     
-    private void handleSendFile() {
+    @FXML
+    public void handleSendFile() {
         if (selectedUser == null) {
             showStatus("Seleccione un usuario para enviar el archivo", false);
             return;
@@ -444,7 +448,7 @@ public class MainController implements Initializable {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Configuración");
         alert.setHeaderText("Configuración del Cliente");
-        alert.setContentText("Configuración del servidor:\nHost: localhost\nPuerto: 9999");
+        alert.setContentText("Configuración del servidor:\nHost: localhost\nPuerto: 9998");
         alert.showAndWait();
     }
     
