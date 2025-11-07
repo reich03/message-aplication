@@ -6,14 +6,10 @@ import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Modelo de conexión de cliente
- * Representa una conexión activa con sus metadatos
- */
 public class ClientConnection {
     
     private final String connectionId;
-    private final int userId;
+    private final Long userId;
     private final String username;
     private final Socket socket;
     private final String clientIp;
@@ -25,7 +21,7 @@ public class ClientConnection {
     private final AtomicInteger filesSentCount;
     private final AtomicLong lastActivity;
     
-    public ClientConnection(String connectionId, int userId, String username, 
+    public ClientConnection(String connectionId, Long userId, String username, 
                           Socket socket, String clientIp, int maxConnections, int maxFilesPerDay) {
         this.connectionId = connectionId;
         this.userId = userId;
@@ -46,7 +42,7 @@ public class ClientConnection {
         return connectionId;
     }
     
-    public int getUserId() {
+    public Long getUserId() {
         return userId;
     }
     

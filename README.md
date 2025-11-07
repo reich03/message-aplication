@@ -29,8 +29,8 @@ docker-compose up --build
 
 - **Base de Datos**: PostgreSQL en puerto 5432
 - **Servidor TCP**: Puerto 9999
-- **Aplicación Web**: http://localhost:8080
-- **API REST**: http://localhost:8080/api
+- **Aplicación Web**: http://localhost:8082
+- **API REST**: http://localhost:8082/api
 
 ## Estructura del Proyecto
 

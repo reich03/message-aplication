@@ -44,7 +44,7 @@ public class User {
     @Column(name = "last_connection")
     private LocalDateTime lastConnection;
     
-    @Column(name = "is_connected", nullable = false)
+    @Column(name = "connected", nullable = false)
     private boolean connected = false;
     
     @Column(name = "connection_count", nullable = false)

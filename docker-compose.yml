@@ -12,7 +12,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U messaging_user -d messaging_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - messaging_network
 
@@ -22,9 +27,10 @@ services:
       dockerfile: Dockerfile
     container_name: messaging_web
     ports:
-      - "8080:8080"
+      - "8083:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/messaging_app
       - SPRING_DATASOURCE_USERNAME=messaging_user
@@ -40,7 +46,8 @@ services:
     ports:
       - "9999:9999"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - DB_URL=jdbc:postgresql://postgres:5432/messaging_app
       - DB_USER=messaging_user

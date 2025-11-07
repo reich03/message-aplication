@@ -13,10 +13,6 @@ import java.net.Socket;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Servicio para manejar conexiones de clientes individuales
- * Implementa concurrencia usando hilos
- */
 public class ClientHandlerService implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(ClientHandlerService.class);
@@ -64,13 +60,11 @@ public class ClientHandlerService implements Runnable {
         String clientIp = clientSocket.getInetAddress().getHostAddress();
         
         try {
-            // Proceso de autenticación
             if (!authenticateClient()) {
                 sendResponse("AUTH_FAILED", "Autenticación fallida");
                 return;
             }
             
-            // Registrar conexión en el pool
             String connectionId = UUID.randomUUID().toString();
             clientConnection = new ClientConnection(
                 connectionId,
@@ -87,14 +81,12 @@ public class ClientHandlerService implements Runnable {
                 return;
             }
             
-            // Registrar conexión en base de datos
             userService.registerConnection(clientConnection);
             
             sendResponse("AUTH_SUCCESS", "Autenticación exitosa");
             loggingService.info("Cliente autenticado: " + userService.getCurrentUser().getUsername() + 
                               " desde " + clientIp);
             
-            // Bucle principal de manejo de mensajes
             handleMessages();
             
         } catch (Exception e) {
@@ -107,7 +99,6 @@ public class ClientHandlerService implements Runnable {
             String authRequest = reader.readLine();
             if (authRequest == null) return false;
             
-            // Parsear solicitud de autenticación
             String[] parts = authRequest.split(":");
             if (parts.length != 3 || !"AUTH".equals(parts[0])) {
                 return false;
@@ -116,14 +107,12 @@ public class ClientHandlerService implements Runnable {
             String username = parts[1];
             String password = parts[2];
             
-            // Verificar credenciales
             User user = userService.authenticateUser(username, password);
             if (user == null) {
                 loggingService.warn("Intento de autenticación fallido para usuario: " + username);
                 return false;
             }
             
-            // Verificar si el usuario está aprobado
             if (!"APPROVED".equals(user.getStatus())) {
                 loggingService.warn("Usuario no aprobado intenta conectarse: " + username);
                 return false;
@@ -176,6 +165,9 @@ public class ClientHandlerService implements Runnable {
                 case "GET_MESSAGES":
                     handleGetMessages(data);
                     break;
+                case "GET_MESSAGES_WITH_USER":
+                    handleGetMessagesWithUser(data);
+                    break;
                 case "GET_USERS":
                     handleGetUsers();
                     break;
@@ -197,7 +189,6 @@ public class ClientHandlerService implements Runnable {
             Message message = objectMapper.readValue(data, Message.class);
             message.setSenderId(clientConnection.getUserId());
             
-            // Guardar mensaje en base de datos
             boolean saved = userService.saveMessage(message);
             if (saved) {
                 clientConnection.incrementMessagesCount();
@@ -216,13 +207,11 @@ public class ClientHandlerService implements Runnable {
     
     private void handleSendFile(String data) {
         try {
-            // Verificar límite de archivos
             if (!clientConnection.canSendFile()) {
                 sendResponse("FILE_LIMIT", "Límite de archivos diarios alcanzado");
                 return;
             }
             
-            // Procesar envío de archivo (implementación simplificada)
             clientConnection.incrementFilesSentCount();
             sendResponse("FILE_SENT", "Archivo enviado correctamente");
             loggingService.info("Archivo enviado por " + clientConnection.getUsername());
@@ -235,13 +224,24 @@ public class ClientHandlerService implements Runnable {
     
     private void handleGetMessages(String data) {
         try {
-            // Obtener mensajes del usuario
             String messages = userService.getUserMessages(clientConnection.getUserId());
             sendResponse("MESSAGES", messages);
             
         } catch (Exception e) {
             logger.error("Error obteniendo mensajes: " + e.getMessage());
             sendResponse("MESSAGES_ERROR", "Error obteniendo mensajes");
+        }
+    }
+    
+    private void handleGetMessagesWithUser(String data) {
+        try {
+            Long otherUserId = Long.parseLong(data);
+            String messages = userService.getMessagesWithUser(clientConnection.getUserId(), otherUserId);
+            sendResponse("MESSAGES", messages);
+            
+        } catch (Exception e) {
+            logger.error("Error obteniendo mensajes con usuario: " + e.getMessage());
+            sendResponse("MESSAGES_ERROR", "Error obteniendo mensajes con usuario");
         }
     }
     
@@ -275,10 +275,8 @@ public class ClientHandlerService implements Runnable {
         
         try {
             if (clientConnection != null) {
-                // Remover del pool de conexiones
                 connectionPool.removeConnection(clientConnection.getConnectionId());
                 
-                // Registrar desconexión en base de datos
                 userService.registerDisconnection(clientConnection);
                 
                 loggingService.info("Cliente desconectado: " + clientConnection.getUsername());

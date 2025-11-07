@@ -49,24 +49,6 @@ public class WebController {
     }
     
     /**
-     * Aprobar usuario
-     */
-    @PostMapping("/users/{id}/approve")
-    public String approveUser(@PathVariable Long id) {
-        webService.approveUser(id);
-        return "redirect:/users?approved=true";
-    }
-    
-    /**
-     * Rechazar usuario
-     */
-    @PostMapping("/users/{id}/reject")
-    public String rejectUser(@PathVariable Long id) {
-        webService.rejectUser(id);
-        return "redirect:/users?rejected=true";
-    }
-    
-    /**
      * Lista de mensajes
      */
     @GetMapping("/messages")
@@ -263,5 +245,23 @@ public class WebController {
         Map<String, Object> stats = webService.getDashboardStats();
         model.addAttribute("stats", stats);
         return "admin/reports";
+    }
+    
+    /**
+     * Aprobar usuario
+     */
+    @PostMapping("/users/{id}/approve")
+    public String approveUser(@PathVariable Long id) {
+        webService.approveUser(id);
+        return "redirect:/admin/users?approved=true";
+    }
+    
+    /**
+     * Rechazar usuario
+     */
+    @PostMapping("/users/{id}/reject")
+    public String rejectUser(@PathVariable Long id) {
+        webService.rejectUser(id);
+        return "redirect:/admin/users?rejected=true";
     }
 }

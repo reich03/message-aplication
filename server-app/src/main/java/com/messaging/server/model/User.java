@@ -1,22 +1,28 @@
 package com.messaging.server.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 
-/**
- * Modelo de Usuario
- * Representa un usuario del sistema de mensajería
- */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
     
-    private int id;
+    private Long id;
     private String username;
     private String password;
     private String email;
-    private String status; // PENDING, APPROVED, REJECTED
+    private String status;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime lastConnection;
     private boolean connected;
+    private int connectionCount;
     private int maxConnections;
+    private int filesSentCount;
     private int maxFilesPerDay;
     
     // Constructores
@@ -29,16 +35,18 @@ public class User {
         this.status = "PENDING";
         this.createdAt = LocalDateTime.now();
         this.connected = false;
+        this.connectionCount = 0;
         this.maxConnections = 3;
+        this.filesSentCount = 0;
         this.maxFilesPerDay = 10;
     }
     
     // Getters y Setters
-    public int getId() {
+    public Long getId() {
         return id;
     }
     
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
     
@@ -98,12 +106,28 @@ public class User {
         this.connected = connected;
     }
     
+    public int getConnectionCount() {
+        return connectionCount;
+    }
+    
+    public void setConnectionCount(int connectionCount) {
+        this.connectionCount = connectionCount;
+    }
+    
     public int getMaxConnections() {
         return maxConnections;
     }
     
     public void setMaxConnections(int maxConnections) {
         this.maxConnections = maxConnections;
+    }
+    
+    public int getFilesSentCount() {
+        return filesSentCount;
+    }
+    
+    public void setFilesSentCount(int filesSentCount) {
+        this.filesSentCount = filesSentCount;
     }
     
     public int getMaxFilesPerDay() {

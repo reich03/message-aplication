@@ -10,17 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Pool de conexiones de clientes usando patrón Object Pool
- * Gestiona las conexiones activas y aplica restricciones
- */
 public class ConnectionPool {
     
     private static final Logger logger = LoggerFactory.getLogger(ConnectionPool.class);
     private static volatile ConnectionPool instance;
     
     private final Map<String, ClientConnection> activeConnections;
-    private final Map<Integer, AtomicInteger> userConnectionCounts;
+    private final Map<Long, AtomicInteger> userConnectionCounts;
     private final AtomicInteger totalConnections;
     
     private ConnectionPool() {
@@ -40,14 +36,10 @@ public class ConnectionPool {
         return instance;
     }
     
-    /**
-     * Agregar nueva conexión al pool
-     */
     public boolean addConnection(ClientConnection connection) {
         String connectionId = connection.getConnectionId();
-        int userId = connection.getUserId();
+        Long userId = connection.getUserId();
         
-        // Verificar si el usuario ya tiene el máximo de conexiones
         int maxConnections = connection.getMaxConnections();
         int currentConnections = getUserConnectionCount(userId);
         
@@ -57,7 +49,6 @@ public class ConnectionPool {
             return false;
         }
         
-        // Agregar conexión
         activeConnections.put(connectionId, connection);
         userConnectionCounts.computeIfAbsent(userId, k -> new AtomicInteger(0)).incrementAndGet();
         totalConnections.incrementAndGet();
@@ -68,13 +59,10 @@ public class ConnectionPool {
         return true;
     }
     
-    /**
-     * Remover conexión del pool
-     */
     public void removeConnection(String connectionId) {
         ClientConnection connection = activeConnections.remove(connectionId);
         if (connection != null) {
-            int userId = connection.getUserId();
+            Long userId = connection.getUserId();
             AtomicInteger userCount = userConnectionCounts.get(userId);
             if (userCount != null) {
                 userCount.decrementAndGet();
@@ -89,50 +77,32 @@ public class ConnectionPool {
         }
     }
     
-    /**
-     * Obtener conexión por ID
-     */
     public ClientConnection getConnection(String connectionId) {
         return activeConnections.get(connectionId);
     }
     
-    /**
-     * Obtener todas las conexiones de un usuario
-     */
-    public Set<ClientConnection> getUserConnections(int userId) {
+    public Set<ClientConnection> getUserConnections(Long userId) {
         return activeConnections.values().stream()
             .filter(conn -> conn.getUserId() == userId)
             .collect(Collectors.toSet());
     }
     
-    /**
-     * Obtener número de conexiones activas
-     */
     public int getActiveConnections() {
         return totalConnections.get();
     }
     
-    /**
-     * Obtener número de conexiones de un usuario específico
-     */
-    public int getUserConnectionCount(int userId) {
+    public int getUserConnectionCount(Long userId) {
         AtomicInteger count = userConnectionCounts.get(userId);
         return count != null ? count.get() : 0;
     }
     
-    /**
-     * Obtener todas las conexiones activas
-     */
     public Map<String, ClientConnection> getAllConnections() {
         return new ConcurrentHashMap<>(activeConnections);
     }
     
-    /**
-     * Limpiar conexiones inactivas
-     */
     public void cleanupInactiveConnections() {
         long currentTime = System.currentTimeMillis();
-        long timeout = 300000; // 5 minutos
+        long timeout = 300000;
         
         activeConnections.entrySet().removeIf(entry -> {
             ClientConnection connection = entry.getValue();
@@ -145,16 +115,10 @@ public class ConnectionPool {
         });
     }
     
-    /**
-     * Verificar si un usuario puede conectarse
-     */
-    public boolean canUserConnect(int userId, int maxConnections) {
+    public boolean canUserConnect(Long userId, int maxConnections) {
         return getUserConnectionCount(userId) < maxConnections;
     }
     
-    /**
-     * Obtener estadísticas del pool
-     */
     public Map<String, Object> getStatistics() {
         Map<String, Object> stats = new ConcurrentHashMap<>();
         stats.put("totalConnections", totalConnections.get());
@@ -166,9 +130,6 @@ public class ConnectionPool {
         return stats;
     }
     
-    /**
-     * Cerrar todas las conexiones
-     */
     public void shutdown() {
         logger.info("Cerrando pool de conexiones...");
         

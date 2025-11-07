@@ -1,28 +1,33 @@
 package com.messaging.server.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 
-/**
- * Modelo de Mensaje
- * Representa un mensaje en el sistema
- */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
     
-    private int id;
-    private int senderId;
-    private int receiverId;
-    private String messageType; // TEXT, FILE
+    private Long id;
+    private Long senderId;
+    private Long receiverId;
+    private String messageType;
     private String content;
     private String fileName;
     private String filePath;
     private Long fileSize;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime sentAt;
-    private boolean isRead;
     
-    // Constructores
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime createdAt;
+    private boolean isRead;
+    private String senderUsername;
+    private String receiverUsername;
+    
     public Message() {}
     
-    public Message(int senderId, int receiverId, String messageType, String content) {
+    public Message(Long senderId, Long receiverId, String messageType, String content) {
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.messageType = messageType;
@@ -32,27 +37,27 @@ public class Message {
     }
     
     // Getters y Setters
-    public int getId() {
+    public Long getId() {
         return id;
     }
     
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
     
-    public int getSenderId() {
+    public Long getSenderId() {
         return senderId;
     }
     
-    public void setSenderId(int senderId) {
+    public void setSenderId(Long senderId) {
         this.senderId = senderId;
     }
     
-    public int getReceiverId() {
+    public Long getReceiverId() {
         return receiverId;
     }
     
-    public void setReceiverId(int receiverId) {
+    public void setReceiverId(Long receiverId) {
         this.receiverId = receiverId;
     }
     
@@ -110,6 +115,31 @@ public class Message {
     
     public void setRead(boolean read) {
         isRead = read;
+    }
+    
+    public LocalDateTime getCreatedAt() {
+        return sentAt; // Alias para compatibilidad
+    }
+    
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.sentAt = createdAt;
+        this.createdAt = createdAt;
+    }
+    
+    public String getSenderUsername() {
+        return senderUsername;
+    }
+    
+    public void setSenderUsername(String senderUsername) {
+        this.senderUsername = senderUsername;
+    }
+    
+    public String getReceiverUsername() {
+        return receiverUsername;
+    }
+    
+    public void setReceiverUsername(String receiverUsername) {
+        this.receiverUsername = receiverUsername;
     }
     
     @Override

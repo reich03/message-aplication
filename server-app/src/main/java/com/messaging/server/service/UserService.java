@@ -13,10 +13,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servicio para gestión de usuarios
- * Aplica principios SOLID y maneja operaciones de base de datos
- */
 public class UserService {
     
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -28,11 +24,9 @@ public class UserService {
     public UserService(DatabaseConfig databaseConfig) {
         this.databaseConfig = databaseConfig;
         this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        this.objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
-    
-    /**
-     * Autenticar usuario
-     */
     public User authenticateUser(String username, String password) {
         String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND status = 'APPROVED'";
         
@@ -55,9 +49,6 @@ public class UserService {
         return null;
     }
     
-    /**
-     * Crear nuevo usuario
-     */
     public boolean createUser(User user) {
         String sql = "INSERT INTO users (username, password, email, status, max_connections, max_files_per_day) " +
                     "VALUES (?, ?, ?, 'PENDING', ?, ?)";
@@ -76,7 +67,7 @@ public class UserService {
             if (affectedRows > 0) {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        user.setId(generatedKeys.getInt(1));
+                        user.setId(generatedKeys.getLong(1));
                     }
                 }
                 return true;
@@ -89,9 +80,6 @@ public class UserService {
         return false;
     }
     
-    /**
-     * Aprobar usuario
-     */
     public boolean approveUser(int userId) {
         String sql = "UPDATE users SET status = 'APPROVED' WHERE id = ?";
         
@@ -107,9 +95,6 @@ public class UserService {
         }
     }
     
-    /**
-     * Obtener usuario por ID
-     */
     public User getUserById(int userId) {
         String sql = "SELECT * FROM users WHERE id = ?";
         
@@ -131,9 +116,6 @@ public class UserService {
         return null;
     }
     
-    /**
-     * Obtener todos los usuarios
-     */
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users ORDER BY created_at DESC";
@@ -153,9 +135,6 @@ public class UserService {
         return users;
     }
     
-    /**
-     * Guardar mensaje
-     */
     public boolean saveMessage(Message message) {
         String sql = "INSERT INTO messages (sender_id, receiver_id, message_type, content, sent_at) " +
                     "VALUES (?, ?, ?, ?, ?)";
@@ -163,8 +142,8 @@ public class UserService {
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setInt(1, message.getSenderId());
-            stmt.setInt(2, message.getReceiverId());
+            stmt.setLong(1, message.getSenderId());
+            stmt.setLong(2, message.getReceiverId());
             stmt.setString(3, message.getMessageType());
             stmt.setString(4, message.getContent());
             stmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
@@ -177,10 +156,7 @@ public class UserService {
         }
     }
     
-    /**
-     * Obtener mensajes de un usuario
-     */
-    public String getUserMessages(int userId) {
+    public String getUserMessages(Long userId) {
         String sql = "SELECT m.*, u1.username as sender_name, u2.username as receiver_name " +
                     "FROM messages m " +
                     "JOIN users u1 ON m.sender_id = u1.id " +
@@ -193,15 +169,15 @@ public class UserService {
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setInt(1, userId);
-            stmt.setInt(2, userId);
+            stmt.setLong(1, userId);
+            stmt.setLong(2, userId);
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Message message = new Message();
-                    message.setId(rs.getInt("id"));
-                    message.setSenderId(rs.getInt("sender_id"));
-                    message.setReceiverId(rs.getInt("receiver_id"));
+                    message.setId(rs.getLong("id"));
+                    message.setSenderId(rs.getLong("sender_id"));
+                    message.setReceiverId(rs.getLong("receiver_id"));
                     message.setMessageType(rs.getString("message_type"));
                     message.setContent(rs.getString("content"));
                     message.setSentAt(rs.getTimestamp("sent_at").toLocalDateTime());
@@ -221,33 +197,30 @@ public class UserService {
         }
     }
     
-    /**
-     * Registrar conexión
-     */
     public void registerConnection(ClientConnection connection) {
-        String sql = "INSERT INTO active_connections (user_id, client_ip, connected_at) " +
-                    "VALUES (?, ?, ?)";
-        
-        try (Connection conn = databaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = databaseConfig.getConnection()) {
+            String updateUserSql = "UPDATE users SET connected = TRUE, last_connection = ? WHERE id = ?";
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateUserSql)) {
+                updateStmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+                updateStmt.setLong(2, connection.getUserId());
+                updateStmt.executeUpdate();
+                logger.info("Usuario {} marcado como conectado", connection.getUserId());
+            }
             
-            stmt.setInt(1, connection.getUserId());
-            stmt.setString(2, connection.getClientIp());
-            stmt.setTimestamp(3, Timestamp.valueOf(connection.getConnectedAt()));
-            
-            stmt.executeUpdate();
-            
-            // Actualizar estado del usuario
-            updateUserConnectionStatus(connection.getUserId(), true);
+            String insertConnSql = "INSERT INTO active_connections (user_id, client_ip, connected_at) VALUES (?, ?, ?)";
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertConnSql)) {
+                insertStmt.setLong(1, connection.getUserId());
+                insertStmt.setString(2, connection.getClientIp());
+                insertStmt.setTimestamp(3, Timestamp.valueOf(connection.getConnectedAt()));
+                insertStmt.executeUpdate();
+                logger.info("Conexión registrada en active_connections para usuario {}", connection.getUserId());
+            }
             
         } catch (SQLException e) {
-            logger.error("Error registrando conexión: " + e.getMessage());
+            logger.error("Error registrando conexión: " + e.getMessage(), e);
         }
     }
     
-    /**
-     * Registrar desconexión
-     */
     public void registerDisconnection(ClientConnection connection) {
         String sql = "INSERT INTO connection_history (user_id, client_ip, connected_at, disconnected_at, messages_sent) " +
                     "VALUES (?, ?, ?, ?, ?)";
@@ -255,7 +228,7 @@ public class UserService {
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setInt(1, connection.getUserId());
+            stmt.setLong(1, connection.getUserId());
             stmt.setString(2, connection.getClientIp());
             stmt.setTimestamp(3, Timestamp.valueOf(connection.getConnectedAt()));
             stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
@@ -263,7 +236,6 @@ public class UserService {
             
             stmt.executeUpdate();
             
-            // Actualizar estado del usuario
             updateUserConnectionStatus(connection.getUserId(), false);
             
         } catch (SQLException e) {
@@ -271,48 +243,66 @@ public class UserService {
         }
     }
     
-    /**
-     * Obtener usuarios conectados
-     */
     public String getConnectedUsers() {
-        String sql = "SELECT u.username, ac.client_ip, ac.connected_at, ac.messages_count " +
+        String sql = "SELECT u.id, u.username, u.email, u.status, u.created_at, u.last_connection, " +
+                    "u.connected, u.connection_count, u.max_connections, u.files_sent_count, u.max_files_per_day " +
                     "FROM users u " +
-                    "JOIN active_connections ac ON u.id = ac.user_id " +
-                    "ORDER BY ac.connected_at DESC";
+                    "WHERE u.status = 'APPROVED' AND u.connected = TRUE " +
+                    "ORDER BY u.last_connection DESC NULLS LAST";
         
-        List<Object> connectedUsers = new ArrayList<>();
+        List<User> connectedUsers = new ArrayList<>();
         
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             
+            logger.info("Ejecutando consulta de usuarios conectados...");
+            
             while (rs.next()) {
-                // Crear objeto con información de usuario conectado
-                connectedUsers.add(new Object() {
-                    public final String username = rs.getString("username");
-                    public final String clientIp = rs.getString("client_ip");
-                    public final LocalDateTime connectedAt = rs.getTimestamp("connected_at").toLocalDateTime();
-                    public final int messagesCount = rs.getInt("messages_count");
-                });
+                User user = new User();
+                user.setId(rs.getLong("id"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setStatus(rs.getString("status"));
+                
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                if (createdAt != null) {
+                    user.setCreatedAt(createdAt.toLocalDateTime());
+                }
+                
+                Timestamp lastConnection = rs.getTimestamp("last_connection");
+                if (lastConnection != null) {
+                    user.setLastConnection(lastConnection.toLocalDateTime());
+                }
+                
+                user.setConnected(rs.getBoolean("connected"));
+                user.setConnectionCount(rs.getInt("connection_count"));
+                user.setMaxConnections(rs.getInt("max_connections"));
+                user.setFilesSentCount(rs.getInt("files_sent_count"));
+                user.setMaxFilesPerDay(rs.getInt("max_files_per_day"));
+                
+                logger.info("Usuario conectado encontrado: {} (ID: {})", user.getUsername(), user.getId());
+                connectedUsers.add(user);
             }
             
+            logger.info("Total de usuarios conectados encontrados: {}", connectedUsers.size());
+            
         } catch (SQLException e) {
-            logger.error("Error obteniendo usuarios conectados: " + e.getMessage());
+            logger.error("Error obteniendo usuarios conectados: {}", e.getMessage(), e);
         }
         
         try {
-            return objectMapper.writeValueAsString(connectedUsers);
+            String json = objectMapper.writeValueAsString(connectedUsers);
+            logger.info("JSON generado con {} usuarios: {}", connectedUsers.size(), json);
+            return json;
         } catch (Exception e) {
-            logger.error("Error serializando usuarios conectados: " + e.getMessage());
+            logger.error("Error serializando usuarios: {}", e.getMessage(), e);
             return "[]";
         }
     }
     
-    /**
-     * Limpiar usuarios inactivos
-     */
     public void cleanupInactiveUsers() {
-        String sql = "UPDATE users SET is_connected = FALSE WHERE id NOT IN " +
+        String sql = "UPDATE users SET connected = FALSE WHERE id NOT IN " +
                     "(SELECT DISTINCT user_id FROM active_connections)";
         
         try (Connection conn = databaseConfig.getConnection();
@@ -328,15 +318,15 @@ public class UserService {
         }
     }
     
-    private void updateUserConnectionStatus(int userId, boolean isConnected) {
-        String sql = "UPDATE users SET is_connected = ?, last_connection = ? WHERE id = ?";
+    private void updateUserConnectionStatus(Long userId, boolean isConnected) {
+        String sql = "UPDATE users SET connected = ?, last_connection = ? WHERE id = ?";
         
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setBoolean(1, isConnected);
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
-            stmt.setInt(3, userId);
+            stmt.setLong(3, userId);
             
             stmt.executeUpdate();
             
@@ -345,9 +335,57 @@ public class UserService {
         }
     }
     
+    public String getMessagesWithUser(Long userId1, Long userId2) {
+        String sql = "SELECT m.id, m.sender_id, m.receiver_id, m.content, m.message_type, " +
+                    "m.sent_at, s.username as sender_username, r.username as receiver_username " +
+                    "FROM messages m " +
+                    "JOIN users s ON m.sender_id = s.id " +
+                    "JOIN users r ON m.receiver_id = r.id " +
+                    "WHERE (m.sender_id = ? AND m.receiver_id = ?) OR " +
+                    "(m.sender_id = ? AND m.receiver_id = ?) " +
+                    "ORDER BY m.sent_at ASC";
+        
+        List<Message> messages = new ArrayList<>();
+        
+        try (Connection conn = databaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setLong(1, userId1);
+            stmt.setLong(2, userId2);
+            stmt.setLong(3, userId2);
+            stmt.setLong(4, userId1);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Message message = new Message();
+                    message.setId(rs.getLong("id"));
+                    message.setSenderId(rs.getLong("sender_id"));
+                    message.setReceiverId(rs.getLong("receiver_id"));
+                    message.setContent(rs.getString("content"));
+                    message.setMessageType(rs.getString("message_type"));
+                    message.setCreatedAt(rs.getTimestamp("sent_at").toLocalDateTime());
+                    message.setSenderUsername(rs.getString("sender_username"));
+                    message.setReceiverUsername(rs.getString("receiver_username"));
+                    
+                    messages.add(message);
+                }
+            }
+            
+        } catch (SQLException e) {
+            logger.error("Error obteniendo mensajes entre usuarios: " + e.getMessage());
+        }
+        
+        try {
+            return objectMapper.writeValueAsString(messages);
+        } catch (Exception e) {
+            logger.error("Error serializando mensajes: " + e.getMessage());
+            return "[]";
+        }
+    }
+    
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         User user = new User();
-        user.setId(rs.getInt("id"));
+        user.setId(rs.getLong("id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password"));
         user.setEmail(rs.getString("email"));
@@ -355,13 +393,14 @@ public class UserService {
         user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         user.setLastConnection(rs.getTimestamp("last_connection") != null ? 
                               rs.getTimestamp("last_connection").toLocalDateTime() : null);
-        user.setConnected(rs.getBoolean("is_connected"));
+        user.setConnected(rs.getBoolean("connected"));
+        user.setConnectionCount(rs.getInt("connection_count"));
         user.setMaxConnections(rs.getInt("max_connections"));
+        user.setFilesSentCount(rs.getInt("files_sent_count"));
         user.setMaxFilesPerDay(rs.getInt("max_files_per_day"));
         return user;
     }
     
-    // Getters y Setters
     public User getCurrentUser() {
         return currentUser;
     }
