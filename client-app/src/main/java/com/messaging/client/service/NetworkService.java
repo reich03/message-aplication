@@ -88,12 +88,12 @@ public class NetworkService {
     }
 
     /**
-     * Autenticar usuario
+     * Autenticar usuario y devolver datos completos
      */
-    public boolean authenticate(String username, String password) {
+    public User authenticateAndGetUser(String username, String password) {
         if (!ensureConnection()) {
             logger.error("No se pudo establecer conexión para autenticación");
-            return false;
+            return null;
         }
 
         try {
@@ -106,17 +106,54 @@ public class NetworkService {
             logger.debug("Respuesta de autenticación: {}", response);
 
             if (response != null && response.startsWith("AUTH_SUCCESS")) {
-                logger.info("Autenticación exitosa para usuario: {}", username);
-                return true;
+                // Extraer el JSON del usuario de la respuesta
+                String[] parts = response.split(":", 2);
+                if (parts.length > 1) {
+                    String userJson = parts[1];
+                    try {
+                        // Intentar parsear como JSON
+                        User user = objectMapper.readValue(userJson, User.class);
+                        logger.info("Autenticación exitosa con JSON - Usuario: {} ID: {}", username, user.getId());
+                        return user;
+                    } catch (Exception jsonEx) {
+                        // Si falla el JSON, es respuesta legacy (servidor antiguo)
+                        logger.warn("Servidor no envía JSON, esperando actualización del servidor");
+                        logger.warn("Error parseando JSON: {}", jsonEx.getMessage());
+                    }
+                }
+                
+                // Fallback: Obtener usuario de la lista de conectados
+                logger.info("Obteniendo datos del usuario desde lista de conectados...");
+                List<User> users = getConnectedUsers();
+                for (User u : users) {
+                    if (username.equals(u.getUsername())) {
+                        logger.info("Usuario encontrado en lista: {} con ID: {}", username, u.getId());
+                        return u;
+                    }
+                }
+                
+                // Si no está en la lista, crear usuario básico (no ideal pero funcional)
+                logger.warn("Usuario no encontrado en lista, creando usuario básico");
+                User user = new User();
+                user.setUsername(username);
+                user.setId(1L); // ID temporal, debería venir del servidor
+                return user;
             } else {
                 logger.warn("Autenticación fallida para usuario: {} - Respuesta: {}", username, response);
-                return false;
+                return null;
             }
 
         } catch (IOException e) {
             logger.error("Error en autenticación: " + e.getMessage(), e);
-            return false;
+            return null;
         }
+    }
+    
+    /**
+     * Autenticar usuario (método legacy para compatibilidad)
+     */
+    public boolean authenticate(String username, String password) {
+        return authenticateAndGetUser(username, password) != null;
     }
 
     /**
@@ -196,30 +233,97 @@ public class NetworkService {
             String fileInfo = String.format("SEND_FILE:%d:%s:%d",
                     receiverId, file.getName(), file.length());
             writer.println(fileInfo);
+            writer.flush();
 
             String response = reader.readLine();
+            logger.debug("Respuesta FILE_ACCEPTED: {}", response);
+            
             if (response != null && response.startsWith("FILE_ACCEPTED")) {
-                // Enviar contenido del archivo
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    byte[] buffer = new byte[8192];
-                    int bytesRead;
-                    while ((bytesRead = fis.read(buffer)) != -1) {
-                        // Enviar datos del archivo (implementación simplificada)
-                        writer.println("FILE_DATA:" + new String(buffer, 0, bytesRead));
-                    }
-                }
+                // Leer todo el archivo en memoria y convertir a Base64
+                byte[] fileBytes = java.nio.file.Files.readAllBytes(file.toPath());
+                String base64Content = java.util.Base64.getEncoder().encodeToString(fileBytes);
+                
+                logger.info("Archivo leído: {} bytes, Base64: {} caracteres", fileBytes.length, base64Content.length());
+                
+                // Enviar contenido del archivo en Base64
+                writer.println("FILE_DATA:" + base64Content);
+                writer.flush();
 
                 // Confirmar fin de archivo
                 writer.println("FILE_END");
+                writer.flush();
 
                 response = reader.readLine();
+                logger.debug("Respuesta FILE_SENT: {}", response);
                 return response != null && response.startsWith("FILE_SENT");
             }
 
             return false;
 
         } catch (Exception e) {
-            logger.error("Error enviando archivo: " + e.getMessage());
+            logger.error("Error enviando archivo: " + e.getMessage(), e);
+            return false;
+        }
+    }
+    
+    /**
+     * Descargar archivo del servidor
+     */
+    public boolean downloadFile(String serverFilePath, File destinationFile) {
+        if (!ensureConnection()) {
+            return false;
+        }
+
+        try {
+            logger.info("Solicitando descarga de: {}", serverFilePath);
+            
+            // Solicitar archivo al servidor
+            writer.println("DOWNLOAD_FILE:" + serverFilePath);
+            writer.flush();
+
+            String response = reader.readLine();
+            logger.debug("Respuesta servidor: {}", response);
+            
+            if (response != null && response.startsWith("FILE_INFO")) {
+                // Parsear: FILE_INFO:fileName:fileSize
+                String[] parts = response.split(":", 3);
+                if (parts.length < 3) {
+                    logger.error("Formato de FILE_INFO inválido");
+                    return false;
+                }
+                
+                String fileName = parts[1];
+                long fileSize = Long.parseLong(parts[2]);
+                
+                logger.info("Recibiendo archivo: {} ({} bytes)", fileName, fileSize);
+                
+                // Confirmar que estamos listos
+                writer.println("FILE_READY");
+                writer.flush();
+                
+                // Recibir datos en Base64
+                response = reader.readLine();
+                if (response != null && response.startsWith("FILE_DATA:")) {
+                    String base64Content = response.substring(10); // Remover "FILE_DATA:"
+                    
+                    // Decodificar y guardar
+                    byte[] fileBytes = java.util.Base64.getDecoder().decode(base64Content);
+                    java.nio.file.Files.write(destinationFile.toPath(), fileBytes);
+                    
+                    logger.info("Archivo guardado en: {}", destinationFile.getAbsolutePath());
+                    
+                    // Esperar confirmación de fin
+                    response = reader.readLine();
+                    return response != null && response.startsWith("FILE_COMPLETE");
+                }
+            } else if (response != null && response.startsWith("FILE_NOT_FOUND")) {
+                logger.warn("Archivo no encontrado en servidor: {}", serverFilePath);
+            }
+
+            return false;
+
+        } catch (Exception e) {
+            logger.error("Error descargando archivo: " + e.getMessage(), e);
             return false;
         }
     }

@@ -228,13 +228,92 @@ public class WebController {
     }
     
     /**
-     * Gestión rápida de mensajes
+     * Gestión rápida de mensajes con filtros avanzados
      */
     @GetMapping("/admin/messages")
-    public String manageMessages(Model model) {
-        List<Message> messages = webService.getMessages(0, 50, null);
+    public String manageMessages(
+            @RequestParam(required = false) Long senderId,
+            @RequestParam(required = false) Long receiverId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String dateFrom,
+            @RequestParam(required = false) String dateTo,
+            @RequestParam(defaultValue = "25") int size,
+            Model model) {
+        
+        // Obtener mensajes filtrados
+        List<Message> messages = webService.getFilteredMessages(senderId, receiverId, type, dateFrom, dateTo, size);
+        
+        // Obtener lista de todos los usuarios para los filtros
+        List<User> users = webService.getAllUsers();
+        
         model.addAttribute("messages", messages);
+        model.addAttribute("users", users);
+        model.addAttribute("senderId", senderId);
+        model.addAttribute("receiverId", receiverId);
+        model.addAttribute("type", type);
+        model.addAttribute("dateFrom", dateFrom);
+        model.addAttribute("dateTo", dateTo);
+        model.addAttribute("size", size);
+        
         return "admin/messages";
+    }
+    
+    /**
+     * Descargar archivo de un mensaje
+     */
+    @GetMapping("/admin/messages/{id}/download")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadMessageFile(@PathVariable Long id) {
+        Message message = webService.getMessageById(id);
+        if (message == null) {
+            return org.springframework.http.ResponseEntity.notFound().build();
+        }
+        
+        org.springframework.core.io.Resource resource = webService.downloadMessageFile(id);
+        
+        // Determinar el tipo de contenido
+        String contentType = "application/octet-stream";
+        if (message.getMessageType() == Message.MessageType.IMAGE) {
+            if (message.getFileName() != null) {
+                if (message.getFileName().toLowerCase().endsWith(".jpg") || 
+                    message.getFileName().toLowerCase().endsWith(".jpeg")) {
+                    contentType = "image/jpeg";
+                } else if (message.getFileName().toLowerCase().endsWith(".png")) {
+                    contentType = "image/png";
+                } else if (message.getFileName().toLowerCase().endsWith(".gif")) {
+                    contentType = "image/gif";
+                }
+            }
+        }
+        
+        return org.springframework.http.ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, 
+                        "inline; filename=\"" + (message.getFileName() != null ? message.getFileName() : "file") + "\"")
+                .body(resource);
+    }
+    
+    /**
+     * API para obtener detalles de un mensaje
+     */
+    @GetMapping("/api/messages/{id}")
+    @ResponseBody
+    public Message getMessageDetails(@PathVariable Long id) {
+        return webService.getMessageById(id);
+    }
+    
+    /**
+     * Eliminar un mensaje
+     */
+    @PostMapping("/admin/messages/{id}/delete")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> deleteMessage(@PathVariable Long id) {
+        try {
+            webService.deleteMessage(id);
+            return org.springframework.http.ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.status(500).body("Error al eliminar el mensaje");
+        }
     }
     
     /**

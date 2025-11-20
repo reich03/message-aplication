@@ -36,6 +36,28 @@ public class Message {
         this.isRead = false;
     }
     
+    // Constructor privado para el Builder
+    private Message(Builder builder) {
+        this.id = builder.id;
+        this.senderId = builder.senderId;
+        this.receiverId = builder.receiverId;
+        this.messageType = builder.messageType;
+        this.content = builder.content;
+        this.fileName = builder.fileName;
+        this.filePath = builder.filePath;
+        this.fileSize = builder.fileSize;
+        this.sentAt = builder.sentAt != null ? builder.sentAt : LocalDateTime.now();
+        this.createdAt = builder.createdAt;
+        this.isRead = builder.isRead;
+        this.senderUsername = builder.senderUsername;
+        this.receiverUsername = builder.receiverUsername;
+    }
+    
+    // Método estático para obtener un Builder
+    public static Builder builder() {
+        return new Builder();
+    }
+    
     // Getters y Setters
     public Long getId() {
         return id;
@@ -146,5 +168,102 @@ public class Message {
     public String toString() {
         return String.format("Message{id=%d, senderId=%d, receiverId=%d, type='%s', content='%s', sentAt=%s}", 
             id, senderId, receiverId, messageType, content, sentAt);
+    }
+    
+    // Patrón Builder
+    public static class Builder {
+        private Long id;
+        private Long senderId;
+        private Long receiverId;
+        private String messageType;
+        private String content;
+        private String fileName;
+        private String filePath;
+        private Long fileSize;
+        private LocalDateTime sentAt;
+        private LocalDateTime createdAt;
+        private boolean isRead = false;
+        private String senderUsername;
+        private String receiverUsername;
+        
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+        
+        public Builder senderId(Long senderId) {
+            this.senderId = senderId;
+            return this;
+        }
+        
+        public Builder receiverId(Long receiverId) {
+            this.receiverId = receiverId;
+            return this;
+        }
+        
+        public Builder messageType(String messageType) {
+            this.messageType = messageType;
+            return this;
+        }
+        
+        public Builder content(String content) {
+            this.content = content;
+            return this;
+        }
+        
+        public Builder fileName(String fileName) {
+            this.fileName = fileName;
+            return this;
+        }
+        
+        public Builder filePath(String filePath) {
+            this.filePath = filePath;
+            return this;
+        }
+        
+        public Builder fileSize(Long fileSize) {
+            this.fileSize = fileSize;
+            return this;
+        }
+        
+        public Builder sentAt(LocalDateTime sentAt) {
+            this.sentAt = sentAt;
+            return this;
+        }
+        
+        public Builder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+        
+        public Builder isRead(boolean isRead) {
+            this.isRead = isRead;
+            return this;
+        }
+        
+        public Builder senderUsername(String senderUsername) {
+            this.senderUsername = senderUsername;
+            return this;
+        }
+        
+        public Builder receiverUsername(String receiverUsername) {
+            this.receiverUsername = receiverUsername;
+            return this;
+        }
+        
+        public Message build() {
+            // Validaciones opcionales
+            if (senderId == null) {
+                throw new IllegalStateException("senderId es requerido");
+            }
+            if (receiverId == null) {
+                throw new IllegalStateException("receiverId es requerido");
+            }
+            if (messageType == null || messageType.isEmpty()) {
+                throw new IllegalStateException("messageType es requerido");
+            }
+            
+            return new Message(this);
+        }
     }
 }

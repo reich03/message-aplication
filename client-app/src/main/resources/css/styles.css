@@ -1,8 +1,8 @@
-/* Estilos para la aplicación de mensajería */
+/* Estilos para la aplicación de mensajería - Estilo WhatsApp */
 
 /* Panel de Login */
 .login-pane {
-    -fx-background-color: linear-gradient(to bottom, #2196F3, #1976D2);
+    -fx-background-color: linear-gradient(to bottom, #075E54, #128C7E);
     -fx-padding: 40px;
     -fx-alignment: center;
 }
@@ -12,6 +12,198 @@
     -fx-font-weight: bold;
     -fx-text-fill: white;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 2);
+}
+
+/* ===== ESTILOS ESTILO WHATSAPP ===== */
+
+/* Sidebar de usuarios */
+.users-sidebar {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 0 1px 0 0;
+}
+
+.sidebar-header {
+    -fx-background-color: #F0F2F5;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.sidebar-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111B21;
+}
+
+/* Buscador */
+.search-field {
+    -fx-background-color: #F0F2F5;
+    -fx-border-color: transparent;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 15px;
+    -fx-font-size: 14px;
+}
+
+.search-field:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #00A884;
+    -fx-border-width: 2px;
+}
+
+/* Lista de usuarios */
+.users-list {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent;
+}
+
+.users-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 12px 15px;
+    -fx-border-color: #E9EDEF;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.users-list .list-cell:hover {
+    -fx-background-color: #F5F6F6;
+}
+
+.users-list .list-cell:selected {
+    -fx-background-color: #E9EDEF;
+    -fx-text-fill: #111B21;
+}
+
+/* Contenedor del chat */
+.chat-container {
+    -fx-background-color: #EFEAE2;
+}
+
+.chat-header {
+    -fx-background-color: #F0F2F5;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.chat-user-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111B21;
+}
+
+.chat-user-status {
+    -fx-font-size: 13px;
+    -fx-text-fill: #667781;
+}
+
+.online-status {
+    -fx-text-fill: #00A884;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* Área de mensajes */
+.messages-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.messages-scroll .viewport {
+    -fx-background-color: #EFEAE2;
+}
+
+.messages-area {
+    -fx-background-color: #EFEAE2;
+}
+
+/* Burbujas de mensaje */
+.message-bubble {
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 12px;
+    -fx-max-width: 400px;
+    -fx-wrap-text: true;
+}
+
+.message-sent {
+    -fx-background-color: #D9FDD3;
+    -fx-alignment: center-right;
+}
+
+.message-received {
+    -fx-background-color: #FFFFFF;
+    -fx-alignment: center-left;
+}
+
+.message-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #111B21;
+    -fx-wrap-text: true;
+}
+
+.message-time {
+    -fx-font-size: 11px;
+    -fx-text-fill: #667781;
+}
+
+/* Panel de entrada */
+.message-input-panel {
+    -fx-background-color: #F0F2F5;
+}
+
+.message-input {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-padding: 10px 15px;
+    -fx-font-size: 14px;
+}
+
+.message-input:focused {
+    -fx-border-color: #00A884;
+    -fx-border-width: 2px;
+}
+
+/* Botones de iconos */
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #54656F;
+    -fx-font-size: 20px;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+}
+
+.icon-button:hover {
+    -fx-background-color: #E9EDEF;
+    -fx-background-radius: 50%;
+}
+
+.send-button {
+    -fx-background-color: #00A884;
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-background-radius: 50%;
+    -fx-padding: 12px 14px;
+    -fx-cursor: hand;
+}
+
+.send-button:hover {
+    -fx-background-color: #008069;
+}
+
+/* Panel vacío */
+.no-selection-pane {
+    -fx-background-color: #F8F9FA;
+}
+
+.empty-icon {
+    -fx-font-size: 64px;
+    -fx-text-fill: #CED4DA;
+}
+
+.empty-message {
+    -fx-font-size: 18px;
+    -fx-text-fill: #8696A0;
+    -fx-padding: 20px;
 }
 
 /* Campos de entrada */

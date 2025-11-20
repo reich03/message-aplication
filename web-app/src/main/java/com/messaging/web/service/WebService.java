@@ -364,4 +364,93 @@ public class WebService {
         
         userRepository.delete(user);
     }
+    
+    /**
+     * Obtener mensajes filtrados para administración
+     */
+    public List<Message> getFilteredMessages(Long senderId, Long receiverId, String type, 
+                                             String dateFrom, String dateTo, int size) {
+        List<Message> allMessages;
+        
+        // Si hay filtros específicos, aplicarlos
+        if (senderId != null || receiverId != null || type != null || dateFrom != null || dateTo != null) {
+            allMessages = messageRepository.findAll();
+            
+            return allMessages.stream()
+                .filter(msg -> senderId == null || msg.getSender().getId().equals(senderId))
+                .filter(msg -> receiverId == null || msg.getReceiver().getId().equals(receiverId))
+                .filter(msg -> type == null || type.isEmpty() || msg.getMessageType().name().equals(type))
+                .filter(msg -> {
+                    if (dateFrom == null) return true;
+                    try {
+                        LocalDateTime from = LocalDateTime.parse(dateFrom + "T00:00:00");
+                        return msg.getSentAt().isAfter(from) || msg.getSentAt().isEqual(from);
+                    } catch (Exception e) {
+                        return true;
+                    }
+                })
+                .filter(msg -> {
+                    if (dateTo == null) return true;
+                    try {
+                        LocalDateTime to = LocalDateTime.parse(dateTo + "T23:59:59");
+                        return msg.getSentAt().isBefore(to) || msg.getSentAt().isEqual(to);
+                    } catch (Exception e) {
+                        return true;
+                    }
+                })
+                .sorted((m1, m2) -> m2.getSentAt().compareTo(m1.getSentAt()))
+                .limit(size)
+                .toList();
+        } else {
+            // Sin filtros, obtener últimos mensajes
+            Pageable pageable = PageRequest.of(0, size);
+            return messageRepository.findAllByOrderBySentAtDesc(pageable);
+        }
+    }
+    
+    /**
+     * Descargar archivo de un mensaje
+     */
+    public org.springframework.core.io.Resource downloadMessageFile(Long messageId) {
+        Message message = messageRepository.findById(messageId)
+            .orElseThrow(() -> new RuntimeException("Mensaje no encontrado"));
+        
+        if (message.getMessageType() != Message.MessageType.FILE && 
+            message.getMessageType() != Message.MessageType.IMAGE) {
+            throw new RuntimeException("Este mensaje no contiene un archivo");
+        }
+        
+        // El content tiene la ruta del archivo: uploads/1/20251118_081120_perrito.jpeg
+        String filePath = message.getContent();
+        
+        try {
+            // En Docker, los archivos están en /app/uploads
+            // Si la ruta ya es absoluta, úsala; si no, conviértela a absoluta
+            java.nio.file.Path path;
+            if (java.nio.file.Paths.get(filePath).isAbsolute()) {
+                path = java.nio.file.Paths.get(filePath);
+            } else {
+                // Construir la ruta absoluta: /app/uploads/...
+                path = java.nio.file.Paths.get("/app", filePath);
+            }
+            
+            org.springframework.core.io.Resource resource = 
+                new org.springframework.core.io.UrlResource(path.toUri());
+            
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("No se pudo leer el archivo en: " + path.toString());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error al descargar archivo: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Eliminar un mensaje
+     */
+    public void deleteMessage(Long messageId) {
+        messageRepository.deleteById(messageId);
+    }
 }

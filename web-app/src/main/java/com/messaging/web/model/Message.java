@@ -47,12 +47,12 @@ public class Message {
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
     
-    // Relaciones
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Relaciones - EAGER para evitar LazyInitializationException en vistas
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id", insertable = false, updatable = false)
     private User sender;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "receiver_id", insertable = false, updatable = false)
     private User receiver;
     
@@ -213,7 +213,8 @@ public class Message {
     // Enum para el tipo de mensaje
     public enum MessageType {
         TEXT("Texto"),
-        FILE("Archivo");
+        FILE("Archivo"),
+        IMAGE("Imagen");
         
         private final String displayName;
         

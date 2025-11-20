@@ -132,4 +132,10 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
      */
     @Query("SELECT m.messageType, COUNT(m) as messageCount FROM Message m GROUP BY m.messageType")
     List<Object[]> findMessageStatsByType();
+    
+    /**
+     * Buscar todos los mensajes ordenados por fecha descendente
+     */
+    @Query("SELECT m FROM Message m ORDER BY m.sentAt DESC")
+    List<Message> findAllByOrderBySentAtDesc(Pageable pageable);
 }

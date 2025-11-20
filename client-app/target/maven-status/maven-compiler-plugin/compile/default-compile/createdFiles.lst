@@ -1,4 +1,5 @@
 com\messaging\client\controller\MainController$4.class
+com\messaging\client\controller\MainController$9.class
 com\messaging\client\service\NetworkService.class
 com\messaging\client\controller\MainController$2.class
 com\messaging\client\controller\MainController$5.class
@@ -9,5 +10,6 @@ com\messaging\client\model\Message.class
 com\messaging\client\service\UserService.class
 com\messaging\client\controller\MainController$7.class
 com\messaging\client\controller\MainController$6.class
+com\messaging\client\controller\MainController$8.class
 com\messaging\client\controller\MainController$3.class
 com\messaging\client\MessagingClientApp.class

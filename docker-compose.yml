@@ -54,6 +54,7 @@ services:
       - DB_PASSWORD=messaging_pass
     volumes:
       - ./server-app/logs:/app/logs
+      - ./server-app/uploads:/app/uploads
     networks:
       - messaging_network
 

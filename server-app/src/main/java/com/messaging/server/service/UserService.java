@@ -156,6 +156,31 @@ public class UserService {
         }
     }
     
+    public boolean saveFileMessage(Long senderId, Long receiverId, String messageType, 
+                                   String filePath, String fileName) {
+        String sql = "INSERT INTO messages (sender_id, receiver_id, message_type, content, file_name, sent_at) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try (Connection conn = databaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setLong(1, senderId);
+            stmt.setLong(2, receiverId);
+            stmt.setString(3, messageType);
+            stmt.setString(4, filePath);  // Ruta del archivo en el servidor
+            stmt.setString(5, fileName);  // Nombre original del archivo
+            stmt.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            
+            int rowsAffected = stmt.executeUpdate();
+            logger.info("Mensaje de archivo guardado en DB: {} -> {} ({})", senderId, receiverId, fileName);
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            logger.error("Error guardando mensaje de archivo: " + e.getMessage());
+            return false;
+        }
+    }
+    
     public String getUserMessages(Long userId) {
         String sql = "SELECT m.*, u1.username as sender_name, u2.username as receiver_name " +
                     "FROM messages m " +
@@ -337,7 +362,7 @@ public class UserService {
     
     public String getMessagesWithUser(Long userId1, Long userId2) {
         String sql = "SELECT m.id, m.sender_id, m.receiver_id, m.content, m.message_type, " +
-                    "m.sent_at, s.username as sender_username, r.username as receiver_username " +
+                    "m.file_name, m.sent_at, s.username as sender_username, r.username as receiver_username " +
                     "FROM messages m " +
                     "JOIN users s ON m.sender_id = s.id " +
                     "JOIN users r ON m.receiver_id = r.id " +
@@ -363,6 +388,7 @@ public class UserService {
                     message.setReceiverId(rs.getLong("receiver_id"));
                     message.setContent(rs.getString("content"));
                     message.setMessageType(rs.getString("message_type"));
+                    message.setFileName(rs.getString("file_name"));
                     message.setCreatedAt(rs.getTimestamp("sent_at").toLocalDateTime());
                     message.setSenderUsername(rs.getString("sender_username"));
                     message.setReceiverUsername(rs.getString("receiver_username"));

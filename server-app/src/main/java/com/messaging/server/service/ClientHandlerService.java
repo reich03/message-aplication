@@ -10,6 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,6 +42,7 @@ public class ClientHandlerService implements Runnable {
         this.loggingService = loggingService;
         this.connectionPool = connectionPool;
         this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
         this.isRunning = new AtomicBoolean(false);
     }
     
@@ -83,8 +91,11 @@ public class ClientHandlerService implements Runnable {
             
             userService.registerConnection(clientConnection);
             
-            sendResponse("AUTH_SUCCESS", "Autenticación exitosa");
-            loggingService.info("Cliente autenticado: " + userService.getCurrentUser().getUsername() + 
+            // Enviar datos del usuario autenticado como JSON
+            User currentUser = userService.getCurrentUser();
+            String userJson = objectMapper.writeValueAsString(currentUser);
+            sendResponse("AUTH_SUCCESS", userJson);
+            loggingService.info("Cliente autenticado: " + currentUser.getUsername() + 
                               " desde " + clientIp);
             
             handleMessages();
@@ -162,6 +173,9 @@ public class ClientHandlerService implements Runnable {
                 case "SEND_FILE":
                     handleSendFile(data);
                     break;
+                case "DOWNLOAD_FILE":
+                    handleDownloadFile(data);
+                    break;
                 case "GET_MESSAGES":
                     handleGetMessages(data);
                     break;
@@ -212,13 +226,125 @@ public class ClientHandlerService implements Runnable {
                 return;
             }
             
-            clientConnection.incrementFilesSentCount();
-            sendResponse("FILE_SENT", "Archivo enviado correctamente");
-            loggingService.info("Archivo enviado por " + clientConnection.getUsername());
+            // Parsear información del archivo: receiverId:fileName:fileSize
+            String[] parts = data.split(":", 3);
+            if (parts.length < 3) {
+                sendResponse("FILE_ERROR", "Información de archivo inválida");
+                return;
+            }
+            
+            Long receiverId = Long.parseLong(parts[0]);
+            String fileName = parts[1];
+            long fileSize = Long.parseLong(parts[2]);
+            
+            logger.info("Recibiendo archivo: {} ({} bytes) para usuario {}", fileName, fileSize, receiverId);
+            
+            // Aceptar el archivo
+            sendResponse("FILE_ACCEPTED", "OK");
+            
+            // Recibir los datos del archivo
+            StringBuilder fileData = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.equals("FILE_END")) {
+                    break;
+                } else if (line.startsWith("FILE_DATA:")) {
+                    fileData.append(line.substring(10)); // Remover "FILE_DATA:"
+                }
+            }
+            
+            logger.info("Archivo recibido completo: {} caracteres de Base64", fileData.length());
+            
+            // Crear directorio del usuario si no existe
+            Path userUploadDir = Paths.get("uploads", String.valueOf(clientConnection.getUserId()));
+            Files.createDirectories(userUploadDir);
+            
+            // Generar nombre único con timestamp
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String uniqueFileName = timestamp + "_" + fileName;
+            Path filePath = userUploadDir.resolve(uniqueFileName);
+            
+            // Decodificar Base64 y guardar archivo
+            byte[] fileBytes = Base64.getDecoder().decode(fileData.toString());
+            Files.write(filePath, fileBytes, StandardOpenOption.CREATE);
+            
+            logger.info("Archivo guardado en: {}", filePath.toString());
+            
+            // Determinar tipo de mensaje (IMAGE o FILE)
+            String messageType = isImageFile(fileName) ? "IMAGE" : "FILE";
+            
+            // Guardar en base de datos
+            String relativeFilePath = "uploads/" + clientConnection.getUserId() + "/" + uniqueFileName;
+            boolean saved = userService.saveFileMessage(
+                clientConnection.getUserId(),
+                receiverId,
+                messageType,
+                relativeFilePath,
+                fileName
+            );
+            
+            if (saved) {
+                clientConnection.incrementFilesSentCount();
+                sendResponse("FILE_SENT", "Archivo enviado correctamente");
+                loggingService.info("Archivo enviado por " + clientConnection.getUsername() + 
+                                  " a usuario " + receiverId + ": " + fileName);
+            } else {
+                sendResponse("FILE_ERROR", "Error guardando información del archivo");
+            }
             
         } catch (Exception e) {
-            logger.error("Error enviando archivo: " + e.getMessage());
-            sendResponse("FILE_ERROR", "Error procesando archivo");
+            logger.error("Error enviando archivo: " + e.getMessage(), e);
+            sendResponse("FILE_ERROR", "Error procesando archivo: " + e.getMessage());
+        }
+    }
+    
+    private boolean isImageFile(String fileName) {
+        String lower = fileName.toLowerCase();
+        return lower.endsWith(".jpg") || lower.endsWith(".jpeg") || 
+               lower.endsWith(".png") || lower.endsWith(".gif") || 
+               lower.endsWith(".bmp") || lower.endsWith(".webp");
+    }
+    
+    private void handleDownloadFile(String filePath) {
+        try {
+            // El filePath viene como "uploads/1/20251118_081120_perrito.jpeg"
+            Path fileToDownload = Paths.get(filePath);
+            
+            if (!Files.exists(fileToDownload)) {
+                sendResponse("FILE_NOT_FOUND", "Archivo no encontrado");
+                logger.warn("Archivo no encontrado: {}", filePath);
+                return;
+            }
+            
+            // Leer archivo y convertir a Base64
+            byte[] fileBytes = Files.readAllBytes(fileToDownload);
+            String base64Content = Base64.getEncoder().encodeToString(fileBytes);
+            
+            // Obtener nombre del archivo
+            String fileName = fileToDownload.getFileName().toString();
+            
+            logger.info("Enviando archivo: {} ({} bytes)", fileName, fileBytes.length);
+            
+            // Enviar información del archivo
+            sendResponse("FILE_INFO", fileName + ":" + fileBytes.length);
+            
+            // Esperar confirmación
+            String response = reader.readLine();
+            if (response != null && response.startsWith("FILE_READY")) {
+                // Enviar contenido en Base64
+                writer.println("FILE_DATA:" + base64Content);
+                writer.flush();
+                
+                // Confirmar fin
+                writer.println("FILE_COMPLETE");
+                writer.flush();
+                
+                logger.info("Archivo descargado exitosamente: {}", fileName);
+            }
+            
+        } catch (Exception e) {
+            logger.error("Error descargando archivo: " + e.getMessage(), e);
+            sendResponse("DOWNLOAD_ERROR", "Error descargando archivo: " + e.getMessage());
         }
     }
     
