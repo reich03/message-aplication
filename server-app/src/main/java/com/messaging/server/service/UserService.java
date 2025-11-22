@@ -199,13 +199,16 @@ public class UserService {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Message message = new Message();
-                    message.setId(rs.getLong("id"));
-                    message.setSenderId(rs.getLong("sender_id"));
-                    message.setReceiverId(rs.getLong("receiver_id"));
-                    message.setMessageType(rs.getString("message_type"));
-                    message.setContent(rs.getString("content"));
-                    message.setSentAt(rs.getTimestamp("sent_at").toLocalDateTime());
+                    // Uso del patrón Builder para construir Message
+                    Message message = Message.builder()
+                        .id(rs.getLong("id"))
+                        .senderId(rs.getLong("sender_id"))
+                        .receiverId(rs.getLong("receiver_id"))
+                        .messageType(rs.getString("message_type"))
+                        .content(rs.getString("content"))
+                        .sentAt(rs.getTimestamp("sent_at").toLocalDateTime())
+                        .isRead(false)
+                        .build();
                     messages.add(message);
                 }
             }
@@ -382,16 +385,19 @@ public class UserService {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Message message = new Message();
-                    message.setId(rs.getLong("id"));
-                    message.setSenderId(rs.getLong("sender_id"));
-                    message.setReceiverId(rs.getLong("receiver_id"));
-                    message.setContent(rs.getString("content"));
-                    message.setMessageType(rs.getString("message_type"));
-                    message.setFileName(rs.getString("file_name"));
-                    message.setCreatedAt(rs.getTimestamp("sent_at").toLocalDateTime());
-                    message.setSenderUsername(rs.getString("sender_username"));
-                    message.setReceiverUsername(rs.getString("receiver_username"));
+                    // Uso del patrón Builder para construir Message con todos sus campos
+                    Message message = Message.builder()
+                        .id(rs.getLong("id"))
+                        .senderId(rs.getLong("sender_id"))
+                        .receiverId(rs.getLong("receiver_id"))
+                        .content(rs.getString("content"))
+                        .messageType(rs.getString("message_type"))
+                        .fileName(rs.getString("file_name"))
+                        .createdAt(rs.getTimestamp("sent_at").toLocalDateTime())
+                        .senderUsername(rs.getString("sender_username"))
+                        .receiverUsername(rs.getString("receiver_username"))
+                        .isRead(false)
+                        .build();
                     
                     messages.add(message);
                 }

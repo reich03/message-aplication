@@ -48,11 +48,43 @@ docker-compose up --build
 - ✅ Comunicación TCP-IP
 - ✅ Concurrencia con hilos
 - ✅ Base de datos relacional
+- ✅ Patrones de diseño implementados (Object Pool, Builder, Singleton)
+- ✅ Panel de administración web
+- ✅ API REST
+
+## Patrones de Diseño
+
+Este proyecto implementa los siguientes patrones de diseño:
+
+### Patrones Requeridos ⭐
+- **Object Pool**: Gestión eficiente de conexiones de clientes y base de datos
+  - `ConnectionPool.java` - Pool de conexiones de clientes
+  - `DatabaseConfig.java` - Pool de conexiones de BD (HikariCP)
+- **Builder**: Construcción flexible de objetos complejos
+  - `Message.Builder` - Constructor fluido para mensajes
+
+### Patrones Adicionales
+- **Singleton**: Instancia única para componentes críticos
+- **Repository**: Abstracción de persistencia (Spring Data JPA)
+- **MVC**: Separación de responsabilidades
+- **Service Layer**: Lógica de negocio encapsulada
+
+
+## Funcionalidades
+
 - ✅ Gestión de usuarios con aprobación
 - ✅ Envío de mensajes y archivos
 - ✅ Logging en consola y archivo
 - ✅ Restricciones de conexiones y archivos
-- ✅ Aplicación web MVC
-- ✅ API REST
-- ✅ Patrones de diseño (Builder, Object Pool)
+- ✅ Panel de administración web
+- ✅ Consultas y reportes
+- ✅ Pool de conexiones optimizado
+- ✅ Construcción de objetos con validación
+
+## Principios y Buenas Prácticas
+
 - ✅ Principios SOLID
+- ✅ Clean Code
+- ✅ Thread-Safety
+- ✅ Documentación completa
+- ✅ Patrones de diseño GoF
