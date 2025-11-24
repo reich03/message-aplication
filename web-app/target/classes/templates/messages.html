@@ -4,136 +4,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mensajes - Sistema de Mensajería</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/admin-styles.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="fas fa-comments"></i> Sistema de Mensajería
+                <i class="fas fa-comments"></i>
+                <span>Sistema de Mensajería</span>
             </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/users">
-                    <i class="fas fa-users"></i> Usuarios
-                </a>
-                <a class="nav-link" href="/messages">
-                    <i class="fas fa-envelope"></i> Mensajes
-                </a>
-                <a class="nav-link" href="/reports">
-                    <i class="fas fa-chart-bar"></i> Reportes
-                </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="nav-link" href="/users">
+                        <i class="fas fa-users"></i>
+                        <span>Usuarios</span>
+                    </a>
+                    <a class="nav-link active" href="/messages">
+                        <i class="fas fa-envelope"></i>
+                        <span>Mensajes</span>
+                    </a>
+                    <a class="nav-link" href="/reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reportes</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="mb-4">
-                    <i class="fas fa-envelope"></i> Mensajes del Sistema
-                </h1>
-            </div>
+    <!-- Main Content -->
+    <div class="container mt-4 mb-5">
+        <!-- Page Header -->
+        <div class="page-header fade-in">
+            <h1 class="page-title">
+                <i class="fas fa-envelope-open-text"></i>
+                Mensajes del Sistema
+            </h1>
+            <p class="page-subtitle">Historial completo de mensajes enviados</p>
         </div>
 
-        <!-- Filtros -->
-        <div class="card mb-4">
+        <!-- Filters Card -->
+        <div class="card mb-4 fade-in" style="animation-delay: 0.1s;">
+            <div class="card-header">
+                <i class="fas fa-filter"></i> Filtros de Búsqueda
+            </div>
             <div class="card-body">
                 <form method="get" action="/messages">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label for="type" class="form-label">Tipo de Mensaje</label>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="type" class="form-label">
+                                <i class="fas fa-tag"></i> Tipo de Mensaje
+                            </label>
                             <select class="form-select" id="type" name="type">
                                 <option value="">Todos los tipos</option>
-                                <option value="TEXT">Texto</option>
-                                <option value="FILE">Archivo</option>
-                                <option value="IMAGE">Imagen</option>
+                                <option value="TEXT">📝 Texto</option>
+                                <option value="FILE">📎 Archivo</option>
+                                <option value="IMAGE">🖼️ Imagen</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label for="page" class="form-label">Página</label>
+                        <div class="col-md-3">
+                            <label for="page" class="form-label">
+                                <i class="fas fa-file-alt"></i> Página
+                            </label>
                             <input type="number" class="form-control" id="page" name="page" value="0" min="0">
                         </div>
-                        <div class="col-md-4">
-                            <label for="size" class="form-label">Elementos por página</label>
+                        <div class="col-md-3">
+                            <label for="size" class="form-label">
+                                <i class="fas fa-list-ol"></i> Por Página
+                            </label>
                             <select class="form-select" id="size" name="size">
-                                <option value="10">10</option>
-                                <option value="25" selected>25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                                <option value="10">10 mensajes</option>
+                                <option value="25" selected>25 mensajes</option>
+                                <option value="50">50 mensajes</option>
+                                <option value="100">100 mensajes</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search"></i> Filtrar
+                        <div class="col-md-3">
+                            <label class="form-label d-block">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Buscar
                             </button>
-                            <a href="/messages" class="btn btn-secondary">
-                                <i class="fas fa-refresh"></i> Limpiar
-                            </a>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Tabla de mensajes -->
-        <div class="card">
-            <div class="card-body">
-                <div th:if="${#lists.isEmpty(messages)}" class="text-center text-muted py-4">
-                    <i class="fas fa-envelope fa-3x mb-3"></i>
-                    <p>No hay mensajes en el sistema</p>
+        <!-- Statistics -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card stat-summary-card">
+                    <div class="card-body text-center">
+                        <div class="stat-summary-icon text-primary mb-3">
+                            <i class="fas fa-comments fa-3x"></i>
+                        </div>
+                        <h3 class="stat-summary-number" th:text="${messages != null ? #lists.size(messages) : 0}">0</h3>
+                        <p class="stat-summary-label">Total Mensajes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-summary-card">
+                    <div class="card-body text-center">
+                        <div class="stat-summary-icon text-info mb-3">
+                            <i class="fas fa-file-alt fa-3x"></i>
+                        </div>
+                        <h3 class="stat-summary-number" th:text="${pageSize ?: 20}">20</h3>
+                        <p class="stat-summary-label">Por Página</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-summary-card">
+                    <div class="card-body text-center">
+                        <div class="stat-summary-icon text-success mb-3">
+                            <i class="fas fa-layer-group fa-3x"></i>
+                        </div>
+                        <h3 class="stat-summary-number" th:text="${currentPage != null ? currentPage + 1 : 1}">1</h3>
+                        <p class="stat-summary-label">Página Actual</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Table -->
+        <div class="card fade-in" style="animation-delay: 0.2s;">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-table"></i>
+                        <strong>Lista de Mensajes</strong>
+                    </div>
+                    <div class="text-white-50">
+                        <span th:text="${messages != null ? #lists.size(messages) : 0}">0</span> mensajes encontrados
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div th:if="${messages == null || #lists.isEmpty(messages)}" class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-envelope-open"></i>
+                    </div>
+                    <div class="empty-state-title">No se encontraron mensajes</div>
+                    <div class="empty-state-text">Intenta ajustar los filtros de búsqueda</div>
                 </div>
                 
-                <div th:if="${!#lists.isEmpty(messages)}" class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-dark">
+                <div th:if="${messages != null && !#lists.isEmpty(messages)}" class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Remitente</th>
-                                <th>Destinatario</th>
-                                <th>Tipo</th>
-                                <th>Contenido</th>
-                                <th>Fecha</th>
-                                <th>Acciones</th>
+                                <th width="80"><i class="fas fa-hashtag"></i> ID</th>
+                                <th><i class="fas fa-user"></i> Remitente</th>
+                                <th><i class="fas fa-user-check"></i> Destinatario</th>
+                                <th width="120"><i class="fas fa-tag"></i> Tipo</th>
+                                <th><i class="fas fa-comment-alt"></i> Contenido</th>
+                                <th width="150"><i class="fas fa-clock"></i> Fecha/Hora</th>
+                                <th width="120" class="text-center"><i class="fas fa-cog"></i> Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="message : ${messages}">
-                                <td th:text="${message.id}">1</td>
+                                <td class="fw-bold text-muted" th:text="${message.id}">#1</td>
                                 <td>
-                                    <span th:if="${message.sender != null}" th:text="${message.sender.username}">admin</span>
-                                    <span th:if="${message.sender == null}" class="text-muted">Sistema</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="user-avatar-sm bg-primary">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span th:text="${message.senderUsername}">Usuario</span>
+                                    </div>
                                 </td>
                                 <td>
-                                    <span th:if="${message.receiver != null}" th:text="${message.receiver.username}">user</span>
-                                    <span th:if="${message.receiver == null}" class="text-muted">Todos</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="user-avatar-sm bg-success">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span th:text="${message.receiverUsername}">Usuario</span>
+                                    </div>
                                 </td>
                                 <td>
-                                    <span class="badge" 
-                                          th:classappend="${message.messageType.name() == 'TEXT'} ? 'bg-primary' : 
-                                                         (${message.messageType.name() == 'FILE'} ? 'bg-success' : 'bg-info')"
-                                          th:text="${message.messageType.name()}">TEXT</span>
+                                    <span th:if="${message.messageType == 'TEXT'}" class="badge badge-info">
+                                        <i class="fas fa-font"></i> Texto
+                                    </span>
+                                    <span th:if="${message.messageType == 'FILE'}" class="badge badge-warning">
+                                        <i class="fas fa-file"></i> Archivo
+                                    </span>
+                                    <span th:if="${message.messageType == 'IMAGE'}" class="badge badge-success">
+                                        <i class="fas fa-image"></i> Imagen
+                                    </span>
                                 </td>
                                 <td>
-                                    <div th:if="${message.messageType.name() == 'TEXT'}" 
-                                         th:text="${#strings.abbreviate(message.content, 50)}" 
-                                         class="text-truncate" style="max-width: 200px;">
+                                    <div class="message-preview" th:text="${#strings.abbreviate(message.content, 50)}">
                                         Contenido del mensaje...
                                     </div>
-                                    <div th:if="${message.messageType.name() != 'TEXT'}" 
-                                         th:text="${message.fileName ?: 'Archivo'}" 
-                                         class="text-truncate" style="max-width: 200px;">
-                                        archivo.txt
-                                    </div>
                                 </td>
-                                <td th:text="${message.sentAt}">2025-09-30 15:00:00</td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary" 
-                                            th:onclick="'showMessage(' + ${message.id} + ')'" 
-                                            title="Ver detalles">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span th:text="${message.sentAt}">2025-01-01</span>
+                                    </small>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-info btn-sm" 
+                                            th:onclick="'showMessageDetails(' + ${message.id} + ')'"
+                                            title="Ver Detalles">
                                         <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" 
+                                            th:onclick="'deleteMessage(' + ${message.id} + ')'"
+                                            title="Eliminar">
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -141,22 +231,91 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- Pagination -->
+            <div th:if="${messages != null && !#lists.isEmpty(messages)}" class="card-footer bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted">
+                        Mostrando 
+                        <span th:text="${#lists.size(messages)}">0</span> mensajes
+                    </div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item" th:classappend="${currentPage == null || currentPage == 0} ? 'disabled'">
+                                <a class="page-link" th:href="@{/messages(page=${currentPage != null ? currentPage - 1 : 0}, size=${pageSize ?: 20})}">
+                                    <i class="fas fa-chevron-left"></i> Anterior
+                                </a>
+                            </li>
+                            <li class="page-item active">
+                                <span class="page-link" th:text="${currentPage != null ? currentPage + 1 : 1}">1</span>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" th:href="@{/messages(page=${currentPage != null ? currentPage + 1 : 1}, size=${pageSize ?: 20})}">
+                                    Siguiente <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal para ver detalles del mensaje -->
+    <!-- Message Details Modal -->
     <div class="modal fade" id="messageModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Detalles del Mensaje</h5>
+                    <h5 class="modal-title">
+                        <i class="fas fa-envelope-open-text"></i>
+                        Detalles del Mensaje
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="messageDetails">
-                    <!-- Contenido cargado dinámicamente -->
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <label><i class="fas fa-hashtag"></i> ID del Mensaje</label>
+                                <div id="modalMessageId" class="info-value">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <label><i class="fas fa-tag"></i> Tipo</label>
+                                <div id="modalMessageType" class="info-value">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <label><i class="fas fa-user"></i> Remitente</label>
+                                <div id="modalSender" class="info-value">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <label><i class="fas fa-user-check"></i> Destinatario</label>
+                                <div id="modalReceiver" class="info-value">-</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="info-box">
+                                <label><i class="fas fa-clock"></i> Fecha y Hora</label>
+                                <div id="modalDateTime" class="info-value">-</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="info-box">
+                                <label><i class="fas fa-comment-alt"></i> Contenido</label>
+                                <div id="modalContent" class="message-content-box">Cargando...</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
                 </div>
             </div>
         </div>
@@ -164,15 +323,187 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function showMessage(messageId) {
-            // Aquí podrías cargar los detalles del mensaje via AJAX
-            document.getElementById('messageDetails').innerHTML = 
-                '<p>ID del mensaje: ' + messageId + '</p>' +
-                '<p>Esta funcionalidad se puede expandir para mostrar más detalles.</p>';
-            
-            var modal = new bootstrap.Modal(document.getElementById('messageModal'));
-            modal.show();
+        async function showMessageDetails(messageId) {
+            try {
+                const response = await fetch(`/api/messages/${messageId}`);
+                const message = await response.json();
+                
+                document.getElementById('modalMessageId').textContent = message.id;
+                document.getElementById('modalMessageType').innerHTML = getTypeBadge(message.messageType);
+                document.getElementById('modalSender').textContent = message.senderUsername || 'Usuario ' + message.senderId;
+                document.getElementById('modalReceiver').textContent = message.receiverUsername || 'Usuario ' + message.receiverId;
+                document.getElementById('modalDateTime').textContent = formatDateTime(message.sentAt);
+                
+                const contentDiv = document.getElementById('modalContent');
+                
+                if (message.messageType === 'TEXT') {
+                    contentDiv.innerHTML = `<p class="mb-0">${message.content || 'Sin contenido'}</p>`;
+                } else if (message.messageType === 'IMAGE') {
+                    if (message.filePath) {
+                        contentDiv.innerHTML = `
+                            <div class="text-center">
+                                <img src="/api/files/download?path=${message.filePath}" 
+                                     class="img-fluid rounded" 
+                                     style="max-height: 400px;"
+                                     alt="Imagen del mensaje">
+                                <p class="mt-2 mb-0"><small class="text-muted">
+                                    <i class="fas fa-file"></i> ${message.fileName} 
+                                    (${formatFileSize(message.fileSize)})
+                                </small></p>
+                            </div>
+                        `;
+                    } else {
+                        contentDiv.innerHTML = '<p class="text-muted mb-0">Imagen no disponible</p>';
+                    }
+                } else if (message.messageType === 'FILE') {
+                    if (message.filePath) {
+                        contentDiv.innerHTML = `
+                            <div class="file-download-box">
+                                <i class="fas fa-file fa-3x text-primary mb-3"></i>
+                                <h5>${message.fileName}</h5>
+                                <p class="text-muted">${formatFileSize(message.fileSize)}</p>
+                                <a href="/api/files/download?path=${message.filePath}" 
+                                   class="btn btn-primary" download>
+                                    <i class="fas fa-download"></i> Descargar Archivo
+                                </a>
+                            </div>
+                        `;
+                    } else {
+                        contentDiv.innerHTML = '<p class="text-muted mb-0">Archivo no disponible</p>';
+                    }
+                }
+                
+                new bootstrap.Modal(document.getElementById('messageModal')).show();
+            } catch (error) {
+                console.error('Error loading message:', error);
+                alert('Error al cargar los detalles del mensaje');
+            }
+        }
+        
+        function getTypeBadge(type) {
+            const badges = {
+                'TEXT': '<span class="badge badge-info"><i class="fas fa-font"></i> Texto</span>',
+                'FILE': '<span class="badge badge-warning"><i class="fas fa-file"></i> Archivo</span>',
+                'IMAGE': '<span class="badge badge-success"><i class="fas fa-image"></i> Imagen</span>'
+            };
+            return badges[type] || '<span class="badge badge-secondary">Desconocido</span>';
+        }
+        
+        function formatDateTime(dateTime) {
+            if (!dateTime) return '-';
+            const date = new Date(dateTime);
+            return date.toLocaleString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function formatFileSize(bytes) {
+            if (!bytes) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        async function deleteMessage(messageId) {
+            if (confirm('¿Estás seguro de que deseas eliminar este mensaje?')) {
+                try {
+                    const response = await fetch(`/api/messages/${messageId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Error al eliminar el mensaje');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el mensaje');
+                }
+            }
         }
     </script>
+    <style>
+        .stat-summary-card {
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .stat-summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-summary-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-summary-label {
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.875rem;
+            margin-bottom: 0;
+        }
+        
+        .user-avatar-sm {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+        }
+        
+        .message-preview {
+            color: #4b5563;
+            font-size: 0.875rem;
+        }
+        
+        .info-box {
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 0.5rem;
+        }
+        
+        .info-box label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            color: #1f2937;
+            font-weight: 500;
+        }
+        
+        .message-content-box {
+            padding: 1.5rem;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            min-height: 100px;
+        }
+        
+        .file-download-box {
+            text-align: center;
+            padding: 2rem;
+        }
+    </style>
 </body>
 </html>

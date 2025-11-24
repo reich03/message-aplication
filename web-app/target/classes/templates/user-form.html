@@ -4,113 +4,240 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${user.id != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Nuevo Usuario - Sistema de Mensajería</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/admin-styles.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="fas fa-comments"></i> Sistema de Mensajería
+                <i class="fas fa-comments"></i>
+                <span>Sistema de Mensajería</span>
             </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/users">
-                    <i class="fas fa-users"></i> Usuarios
-                </a>
-                <a class="nav-link" href="/messages">
-                    <i class="fas fa-envelope"></i> Mensajes
-                </a>
-                <a class="nav-link" href="/reports">
-                    <i class="fas fa-chart-bar"></i> Reportes
-                </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="nav-link active" href="/users">
+                        <i class="fas fa-users"></i>
+                        <span>Usuarios</span>
+                    </a>
+                    <a class="nav-link" href="/messages">
+                        <i class="fas fa-envelope"></i>
+                        <span>Mensajes</span>
+                    </a>
+                    <a class="nav-link" href="/reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reportes</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <!-- Main Content -->
+    <div class="container mt-4 mb-5">
+        <!-- Page Header -->
+        <div class="page-header fade-in">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="page-title">
+                        <i class="fas fa-user-edit"></i>
+                        <span th:text="${user.id != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Nuevo Usuario</span>
+                    </h1>
+                    <p class="page-subtitle">
+                        <span th:if="${user.id == null}">Completa el formulario para crear un nuevo usuario</span>
+                        <span th:if="${user.id != null}">Actualiza la información del usuario</span>
+                    </p>
+                </div>
+                <a href="/users" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver
+                </a>
+            </div>
+        </div>
+
+        <!-- Form Card -->
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
+            <div class="col-lg-10">
+                <div class="card fade-in" style="animation-delay: 0.1s;">
                     <div class="card-header">
-                        <h4 class="mb-0">
-                            <i class="fas fa-user-edit"></i>
-                            <span th:text="${user.id != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Nuevo Usuario</span>
-                        </h4>
+                        <i class="fas fa-wpforms"></i>
+                        <strong>Formulario de Usuario</strong>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-4">
                         <form th:action="${user.id != null ? '/users/' + user.id : '/users'}" 
                               th:object="${user}" method="post">
                             
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="username" class="form-label">Nombre de Usuario *</label>
-                                        <input type="text" class="form-control" id="username" 
-                                               th:field="*{username}" required>
-                                        <div class="form-text">Nombre único para el usuario</div>
+                            <!-- Basic Information -->
+                            <div class="form-section">
+                                <h5 class="form-section-title">
+                                    <i class="fas fa-user-circle"></i>
+                                    Información Básica
+                                </h5>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="username" class="form-label">
+                                            <i class="fas fa-user"></i>
+                                            Nombre de Usuario *
+                                        </label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="username" 
+                                               th:field="*{username}" 
+                                               required
+                                               placeholder="Ingrese nombre de usuario único">
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            Este será el nombre único para el usuario
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email *</label>
-                                        <input type="email" class="form-control" id="email" 
-                                               th:field="*{email}" required>
-                                        <div class="form-text">Dirección de correo electrónico</div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">
+                                            <i class="fas fa-envelope"></i>
+                                            Correo Electrónico *
+                                        </label>
+                                        <input type="email" 
+                                               class="form-control" 
+                                               id="email" 
+                                               th:field="*{email}" 
+                                               required
+                                               placeholder="usuario@ejemplo.com">
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            Dirección de correo electrónico válida
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="status" class="form-label">Estado</label>
+                            <!-- Security -->
+                            <div class="form-section">
+                                <h5 class="form-section-title">
+                                    <i class="fas fa-lock"></i>
+                                    Seguridad
+                                </h5>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6" th:if="${user.id == null}">
+                                        <label for="password" class="form-label">
+                                            <i class="fas fa-key"></i>
+                                            Contraseña *
+                                        </label>
+                                        <input type="password" 
+                                               class="form-control" 
+                                               id="password" 
+                                               name="password" 
+                                               required
+                                               placeholder="••••••••">
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            Mínimo 6 caracteres
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6" th:if="${user.id != null}">
+                                        <label for="password" class="form-label">
+                                            <i class="fas fa-key"></i>
+                                            Nueva Contraseña
+                                        </label>
+                                        <input type="password" 
+                                               class="form-control" 
+                                               id="password" 
+                                               name="password" 
+                                               placeholder="Dejar vacío para mantener actual">
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            Solo si desea cambiar la contraseña actual
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="status" class="form-label">
+                                            <i class="fas fa-shield-alt"></i>
+                                            Estado del Usuario
+                                        </label>
                                         <select class="form-select" id="status" th:field="*{status}">
-                                            <option value="PENDING">Pendiente</option>
-                                            <option value="APPROVED">Aprobado</option>
-                                            <option value="REJECTED">Rechazado</option>
+                                            <option value="PENDING">⏳ Pendiente de Aprobación</option>
+                                            <option value="APPROVED">✅ Aprobado</option>
+                                            <option value="REJECTED">❌ Rechazado</option>
                                         </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="maxConnections" class="form-label">Máx. Conexiones</label>
-                                        <input type="number" class="form-control" id="maxConnections" 
-                                               th:field="*{maxConnections}" min="1" max="10" value="3">
-                                        <div class="form-text">Número máximo de conexiones simultáneas</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="maxFilesPerDay" class="form-label">Máx. Archivos/Día</label>
-                                        <input type="number" class="form-control" id="maxFilesPerDay" 
-                                               th:field="*{maxFilesPerDay}" min="1" max="100" value="10">
-                                        <div class="form-text">Número máximo de archivos por día</div>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            Define el nivel de acceso del usuario
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="mb-3" th:if="${user.id != null}">
-                                <label for="password" class="form-label">Nueva Contraseña</label>
-                                <input type="password" class="form-control" id="password" 
-                                       name="password" placeholder="Dejar vacío para mantener la actual">
-                                <div class="form-text">Solo si desea cambiar la contraseña</div>
+                            <!-- Configuration -->
+                            <div class="form-section">
+                                <h5 class="form-section-title">
+                                    <i class="fas fa-cog"></i>
+                                    Configuración de Límites
+                                </h5>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="maxConnections" class="form-label">
+                                            <i class="fas fa-network-wired"></i>
+                                            Máximo de Conexiones
+                                        </label>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="maxConnections" 
+                                               th:field="*{maxConnections}" 
+                                               min="1" 
+                                               max="10" 
+                                               value="3">
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            Conexiones simultáneas permitidas (1-10)
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="maxFilesPerDay" class="form-label">
+                                            <i class="fas fa-file-upload"></i>
+                                            Máximo de Archivos por Día
+                                        </label>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="maxFilesPerDay" 
+                                               th:field="*{maxFilesPerDay}" 
+                                               min="1" 
+                                               max="100" 
+                                               value="10">
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            Archivos que puede enviar por día (1-100)
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="mb-3" th:if="${user.id == null}">
-                                <label for="password" class="form-label">Contraseña *</label>
-                                <input type="password" class="form-control" id="password" 
-                                       name="password" required>
-                                <div class="form-text">Contraseña para el nuevo usuario</div>
-                            </div>
-
-                            <div class="d-flex justify-content-between">
-                                <a href="/users" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left"></i> Volver
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i>
-                                    <span th:text="${user.id != null ? 'Actualizar' : 'Crear'}">Crear</span>
-                                </button>
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <div class="d-flex justify-content-end gap-3">
+                                    <a href="/users" class="btn btn-secondary btn-lg px-5">
+                                        <i class="fas fa-times me-2"></i>
+                                        Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary btn-lg px-5 btn-gradient">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:text="${user.id != null ? 'Actualizar Usuario' : 'Crear Usuario'}">Guardar</span>
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -120,5 +247,87 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .form-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .form-section:last-of-type {
+            border-bottom: none;
+        }
+        
+        .form-section-title {
+            color: #1f2937;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid #6366f1;
+            display: inline-block;
+        }
+        
+        .form-section-title i {
+            color: #6366f1;
+            margin-right: 0.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-label i {
+            color: #6366f1;
+            margin-right: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.15);
+        }
+        
+        .form-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+        
+        .form-text i {
+            color: #6366f1;
+        }
+        
+        .form-actions {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        .btn-lg {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+    </style>
 </body>
 </html>
